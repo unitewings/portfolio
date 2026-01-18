@@ -1,0 +1,46 @@
+[
+    {
+        "id": "1",
+        "title": "My Favorite Productivity Tools for 2026",
+        "slug": "favorite-productivity-tools-2026",
+        "date": "2026-01-15T12:00:00Z",
+        "excerpt": "A curated list of the apps and gadgets that keep me focused and efficient.",
+        "content": "For 2026, I've refined my stack to focus on simplicity and interoperability. Here are my top picks...",
+        "tags": [
+            "Productivity",
+            "Gear",
+            "Software"
+        ],
+        "status": "published",
+        "type": "article"
+    },
+    {
+        "id": "2",
+        "title": "How to Structure Your Day for Deep Work",
+        "slug": "structure-day-deep-work",
+        "date": "2026-01-10T09:00:00Z",
+        "excerpt": "Practical tips for blocking time and eliminating distractions to get meaningful work done.",
+        "content": "Deep work is becoming a rare commodity in the age of constant notifications...",
+        "tags": [
+            "Deep Work",
+            "Time Management"
+        ],
+        "status": "published",
+        "type": "article"
+    },
+    {
+        "id": "3",
+        "title": "Building a Personal Knowledge Management System",
+        "slug": "personal-knowledge-management",
+        "date": "2026-01-05T14:30:00Z",
+        "excerpt": "Stop losing great ideas. Here is how I organize my second brain using Notion.",
+        "content": "A PKM system isn't just about hoarding links; it's about connecting ideas...",
+        "tags": [
+            "Notion",
+            "PKM",
+            "Learning"
+        ],
+        "status": "published",
+        "type": "article"
+    }
+]

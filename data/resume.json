@@ -1,0 +1,96 @@
+{
+  "basics": {
+    "name": "Swarn Shauryam",
+    "label": "Productivity Expert & Content Creator",
+    "image": "/profile.jpg",
+    "email": "hello@jeffsu.org",
+    "url": "https://jeffsu.org",
+    "summary": "I help professionals become more productive at work and in life. Ex-Management Consultant and Product Marketer at Google.",
+    "location": {
+      "city": "San Francisco",
+      "countryCode": "US",
+      "region": "CA"
+    },
+    "profiles": [
+      {
+        "network": "LinkedIn",
+        "username": "jeffsu",
+        "url": "https://linkedin.com/in/jsu"
+      },
+      {
+        "network": "YouTube",
+        "username": "jeffsu",
+        "url": "https://youtube.com/jeffsu"
+      }
+    ]
+  },
+  "work": [
+    {
+      "id": "1",
+      "company": "Google",
+      "position": "Product Marketing Manager",
+      "startDate": "2021-08-01",
+      "endDate": "2023-12-31",
+      "summary": "Led global marketing campaigns for Google Workspace.",
+      "highlights": [
+        "Led Go-to-Market strategy for 3 major product launches, resulting in 15% YoY growth.",
+        "Managed a cross-functional team of 10+ stakeholders.",
+        "Created internal productivity tools adopted by 500+ employees."
+      ]
+    },
+    {
+      "id": "2",
+      "company": "Top Tier Consulting",
+      "position": "Management Consultant",
+      "startDate": "2018-06-01",
+      "endDate": "2021-07-31",
+      "highlights": [
+        "Advised Fortune 500 clients on digital transformation strategies.",
+        "Built financial models predicting $50M in potential savings.",
+        "Streamlined operational workflows reducing process time by 30%."
+      ]
+    }
+  ],
+  "education": [
+    {
+      "id": "1",
+      "institution": "University of California, Berkeley",
+      "area": "Business Administration",
+      "studyType": "Bachelor of Science",
+      "startDate": "2014-08-01",
+      "endDate": "2018-05-31",
+      "score": "3.9 GPA"
+    }
+  ],
+  "skills": [
+    {
+      "id": "1",
+      "name": "Productivity",
+      "keywords": [
+        "Notion",
+        "Workflow Optimization",
+        "Time Management"
+      ]
+    },
+    {
+      "id": "2",
+      "name": "Marketing",
+      "keywords": [
+        "Go-to-Market",
+        "Content Strategy",
+        "YouTube Growth"
+      ]
+    },
+    {
+      "id": "3",
+      "name": "Technical",
+      "keywords": [
+        "Data Analysis",
+        "SQL",
+        "Project Management"
+      ]
+    }
+  ],
+  "publications": [],
+  "certifications": []
+}
