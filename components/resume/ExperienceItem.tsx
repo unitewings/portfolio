@@ -2,9 +2,15 @@ import { MarkdownRenderer } from "@/components/shared/MarkdownRenderer";
 import { WorkExperience } from "@/types";
 
 export function ExperienceItem({ job }: { job: WorkExperience }) {
-    // Format date: "2021 - 2023" or "2021 - Present"
-    const startYear = new Date(job.startDate).getFullYear();
-    const endYear = job.endDate === "Present" ? "Present" : new Date(job.endDate).getFullYear();
+    // Format date: "Jan 2021 - Present"
+    const formatDate = (dateString: string) => {
+        if (!dateString) return "";
+        const date = new Date(dateString);
+        return date.toLocaleDateString("en-US", { month: "short", year: "numeric" });
+    };
+
+    const startDateStr = formatDate(job.startDate);
+    const endDateStr = job.endDate === "Present" ? "Present" : formatDate(job.endDate);
 
     return (
         <div className="relative pl-8 md:pl-0">
@@ -13,15 +19,14 @@ export function ExperienceItem({ job }: { job: WorkExperience }) {
 
                 {/* Date Column (Left) */}
                 <div className="mb-2 md:mb-0 md:w-32 md:flex-shrink-0 md:text-right">
-                    <span className="font-mono text-xs text-muted-foreground">
-                        {startYear} — {endYear}
+                    <span className="font-mono text-xs text-muted-foreground whitespace-nowrap">
+                        {startDateStr} – {endDateStr}
                     </span>
                 </div>
 
                 {/* Content Column (Right) */}
                 <div className="relative flex-1 pb-12">
-                    {/* Timeline Dot (Desktop only typically, but let's place it absolutely) */}
-                    <div className="absolute -left-[41px] top-1.5 h-3 w-3 rounded-full border border-border bg-background group-hover:border-primary group-hover:bg-primary transition-colors hidden md:block"></div>
+                    {/* Timeline Dot removed as per request */}
 
                     <div className="space-y-2">
                         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1">

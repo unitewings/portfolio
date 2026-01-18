@@ -117,6 +117,81 @@ export default function ResumeForm({ initialData }: { initialData: ResumeData })
                             className="w-full rounded-md border p-2 bg-background h-24"
                         />
                     </div>
+                    <div>
+                        <label className="text-sm font-medium">Email</label>
+                        <input
+                            type="email"
+                            value={data.basics.email}
+                            onChange={e => handleBasicChange("email", e.target.value)}
+                            className="w-full rounded-md border p-2 bg-background"
+                        />
+                    </div>
+                    <div>
+                        <label className="text-sm font-medium">Website URL</label>
+                        <input
+                            type="url"
+                            value={data.basics.url || ""}
+                            onChange={e => handleBasicChange("url", e.target.value)}
+                            className="w-full rounded-md border p-2 bg-background"
+                        />
+                    </div>
+                </div>
+            </div>
+
+
+            {/* Profiles Section (Basics) */}
+            <div className="space-y-4 rounded-lg border bg-card p-6">
+                <div className="flex items-center justify-between">
+                    <h2 className="text-lg font-semibold">Social Profiles</h2>
+                    <Button type="button" onClick={() => {
+                        const newProfile = { network: "LinkedIn", username: "username", url: "https://linkedin.com/in/..." };
+                        setData(prev => ({
+                            ...prev,
+                            basics: { ...prev.basics, profiles: [...prev.basics.profiles, newProfile] }
+                        }));
+                    }} variant="outline" size="sm">
+                        <Plus size={16} className="mr-2" /> Add Profile
+                    </Button>
+                </div>
+                <div className="grid gap-4">
+                    {data.basics.profiles.map((profile, idx) => (
+                        <div key={idx} className="flex gap-4 items-end">
+                            <div className="flex-1">
+                                <label className="text-xs text-muted-foreground">Network</label>
+                                <input
+                                    value={profile.network}
+                                    onChange={e => {
+                                        const newProfiles = [...data.basics.profiles];
+                                        newProfiles[idx] = { ...newProfiles[idx], network: e.target.value };
+                                        setData(prev => ({ ...prev, basics: { ...prev.basics, profiles: newProfiles } }));
+                                    }}
+                                    className="w-full rounded-md border p-2 bg-background"
+                                />
+                            </div>
+                            <div className="flex-1">
+                                <label className="text-xs text-muted-foreground">URL</label>
+                                <input
+                                    value={profile.url}
+                                    onChange={e => {
+                                        const newProfiles = [...data.basics.profiles];
+                                        newProfiles[idx] = { ...newProfiles[idx], url: e.target.value };
+                                        setData(prev => ({ ...prev, basics: { ...prev.basics, profiles: newProfiles } }));
+                                    }}
+                                    className="w-full rounded-md border p-2 bg-background"
+                                />
+                            </div>
+                            <button
+                                type="button"
+                                onClick={() => {
+                                    const newProfiles = data.basics.profiles.filter((_, i) => i !== idx);
+                                    setData(prev => ({ ...prev, basics: { ...prev.basics, profiles: newProfiles } }));
+                                }}
+                                className="mb-2 text-destructive hover:bg-destructive/10 p-2 rounded-md transition-colors"
+                            >
+                                <Trash2 size={16} />
+                            </button>
+                        </div>
+                    ))}
                 </div>
             </div>
 
@@ -140,6 +215,15 @@ export default function ResumeForm({ initialData }: { initialData: ResumeData })
                         </button>
 
                         <div className="grid gap-4 md:grid-cols-2 pr-12">
+                            <div className="md:col-span-2">
+                                <label className="text-xs text-muted-foreground">Summary (Optional)</label>
+                                <textarea
+                                    value={job.summary || ""}
+                                    onChange={e => updateWork(job.id, "summary", e.target.value)}
+                                    className="w-full rounded-md border p-2 bg-background h-20 text-sm"
+                                    placeholder="Brief description of responsibilities..."
+                                />
+                            </div>
                             <div>
                                 <label className="text-xs text-muted-foreground">Company</label>
                                 <input
@@ -343,6 +427,6 @@ export default function ResumeForm({ initialData }: { initialData: ResumeData })
                 </Button>
             </div>
 
-        </form>
+        </form >
     );
 }

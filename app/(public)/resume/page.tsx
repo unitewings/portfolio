@@ -1,7 +1,19 @@
 import { getResume } from "@/lib/data";
 import { ExperienceItem } from "@/components/resume/ExperienceItem";
-import { Mail, Github, Linkedin, Globe } from "lucide-react";
+import { Mail, Github, Linkedin, Globe, Twitter, Youtube, Facebook, Instagram } from "lucide-react";
 import { MarkdownRenderer } from "@/components/shared/MarkdownRenderer";
+
+// Simple icon helper (duplicated for now to avoid large refactor, or we could export from NavComponents)
+const getSocialIcon = (network: string) => {
+    const n = network.toLowerCase();
+    if (n.includes("github")) return Github;
+    if (n.includes("linkedin")) return Linkedin;
+    if (n.includes("twitter") || n.includes("x")) return Twitter;
+    if (n.includes("youtube")) return Youtube;
+    if (n.includes("facebook")) return Facebook;
+    if (n.includes("instagram")) return Instagram;
+    return Globe;
+};
 
 export const dynamic = "force-dynamic";
 
@@ -32,11 +44,21 @@ export default async function ResumePage() {
                             <span>Website</span>
                         </a>
                     )}
-                    {/* Map profiles if needed, explicitly adding common ones for demo */}
-                    <a href="#" className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors">
-                        <Linkedin size={16} />
-                        <span>LinkedIn</span>
-                    </a>
+                    {basics.profiles.map((profile, idx) => {
+                        const Icon = getSocialIcon(profile.network);
+                        return (
+                            <a
+                                key={idx}
+                                href={profile.url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors"
+                            >
+                                <Icon size={16} />
+                                <span>{profile.network}</span>
+                            </a>
+                        );
+                    })}
                 </div>
             </section>
 
