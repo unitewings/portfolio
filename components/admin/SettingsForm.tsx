@@ -59,18 +59,7 @@ export function SettingsForm({ initialData }: { initialData: SiteSettings }) {
                                 placeholder="Productivity Expert"
                             />
                         </div>
-                        <div className="col-span-2 space-y-2">
-                            <FloatingLabelInput
-                                name="logoUrl"
-                                value={formData.logoUrl || ""}
-                                onChange={handleChange}
-                                label="Logo URL (from /public/images)"
-                                placeholder="/images/Portrait.jpg"
-                            />
-                            <p className="text-xs text-muted-foreground">
-                                Path to your logo image. Supports PNG, JPG, SVG, etc.
-                            </p>
-                        </div>
+
                     </div>
                 </CardContent>
             </Card>
