@@ -20,13 +20,11 @@ export function ProfileCard({ name, label, socialLinks = [], image, size = 64 }:
 
     return (
         <div className="flex flex-col gap-4 p-4">
-            <div className="relative overflow-hidden rounded-full border-2 border-surface" style={{ width: size, height: size }}>
-                {image ? (
-                    <img src={image} alt={name} className="h-full w-full object-cover" />
-                ) : (
-                    <div className="h-full w-full bg-primary/20 flex items-center justify-center text-primary font-bold text-xl">
-                        {name.split(" ").map(n => n[0]).join("").substring(0, 2).toUpperCase()}
-                    </div>
+            <div className="relative flex items-center justify-center mb-6">
+                {image && (
+                    <Link href="/" className="hover:opacity-80 transition-opacity w-full">
+                        <img src={image} alt={name} className="w-full h-auto object-contain" />
+                    </Link>
                 )}
             </div>
             <div>
