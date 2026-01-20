@@ -20,7 +20,6 @@ export async function Navigator() {
                             name={settings.profileName || "Jeff Su"}
                             label={settings.profileLabel || "Productivity Expert"}
                             socialLinks={settings.socialLinks}
-                            image="/images/Swarn.svg"
                         />
                         <NavMenu pages={pages} />
                     </div>

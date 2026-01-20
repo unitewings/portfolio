@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Home, FileText, Settings, Linkedin, Youtube, Moon, Sun, Mail, Github, Twitter, Instagram, Facebook, Globe } from "lucide-react";
 import { useTheme } from "next-themes";
+import { Logo } from "@/components/ui/Logo";
 
 export function ProfileCard({ name, label, socialLinks = [], image, size = 64 }: { name: string; label: string; socialLinks?: any[], image?: string, size?: number }) {
     const iconMap: Record<string, any> = {
@@ -21,11 +22,9 @@ export function ProfileCard({ name, label, socialLinks = [], image, size = 64 }:
     return (
         <div className="flex flex-col gap-4 p-4">
             <div className="relative flex items-center justify-center mb-6">
-                {image && (
-                    <Link href="/" className="hover:opacity-80 transition-opacity w-full">
-                        <img src={image} alt={name} className="w-full h-auto object-contain" />
-                    </Link>
-                )}
+                <Link href="/" className="hover:opacity-80 transition-opacity w-full block">
+                    <Logo />
+                </Link>
             </div>
             <div>
                 <h2 className="text-xl font-bold text-foreground">{name}</h2>
