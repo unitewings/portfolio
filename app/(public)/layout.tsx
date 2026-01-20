@@ -1,6 +1,6 @@
 import { Navigator } from "@/components/layout/Navigator";
 import { MobileMenu } from "@/components/layout/MobileMenu";
-import { getPages } from "@/lib/data";
+import { getPages, getSiteSettings } from "@/lib/data";
 import { MobileHeader } from "@/components/layout/MobileHeader";
 import { Footer } from "@/components/layout/Footer";
 
@@ -10,6 +10,7 @@ export default async function PublicLayout({
     children: React.ReactNode;
 }) {
     const pages = await getPages();
+    const settings = await getSiteSettings();
     return (
         <div className="mx-auto grid min-h-screen w-full max-w-[1400px] grid-cols-1 md:grid-cols-[300px_1fr]">
             <MobileHeader />
@@ -22,7 +23,7 @@ export default async function PublicLayout({
                     </div>
                 </div>
             </main>
-            <MobileMenu pages={pages} />
+            <MobileMenu pages={pages} settings={settings} />
         </div>
     );
 }
