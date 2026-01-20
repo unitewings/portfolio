@@ -33,7 +33,7 @@ export async function Navigator() {
                             <div className="flex flex-col gap-4">
                                 {pinnedPosts.length > 0 ? (
                                     pinnedPosts.map(post => (
-                                        <Link key={post.id} href={`/posts/${post.slug}`} className="group flex flex-col gap-1">
+                                        <Link key={post.id} href={`/posts/${post.slug}`} className="group flex flex-col gap-1 hover-lift p-2 rounded-md transition-all">
                                             <span className="font-medium group-hover:text-primary transition-colors line-clamp-2">
                                                 {post.title}
                                             </span>
@@ -54,11 +54,17 @@ export async function Navigator() {
                                 Topics
                             </h3>
                             <div className="flex flex-wrap gap-2">
-                                {["Productivity", "Gear", "Lifestyle", "Tech", "Career"].map(tag => (
-                                    <span key={tag} className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-foreground">
-                                        {tag}
-                                    </span>
-                                ))}
+                                {Array.from(new Set(posts.flatMap(p => p.tags || [])))
+                                    .slice(0, 10) // Limit to top 10 (simple for now)
+                                    .map(tag => (
+                                        <Link
+                                            key={tag}
+                                            href={`/tags/${tag}`}
+                                            className="inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 text-foreground hover:bg-muted"
+                                        >
+                                            {tag}
+                                        </Link>
+                                    ))}
                             </div>
                         </div>
                     </div>

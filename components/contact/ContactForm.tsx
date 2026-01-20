@@ -4,7 +4,9 @@ import { useTransition, useState } from "react";
 import { submitContactForm } from "@/lib/actions";
 import { Button } from "@/components/shared/ui/button";
 import { toast } from "sonner";
-import { Send } from "lucide-react";
+import { Send, Loader2 } from "lucide-react";
+import { FloatingLabelInput } from "@/components/ui/FloatingLabelInput";
+import { FloatingLabelTextarea } from "@/components/ui/FloatingLabelTextarea";
 
 export function ContactForm() {
     const [isPending, startTransition] = useTransition();
@@ -43,55 +45,39 @@ export function ContactForm() {
         <form action={handleSubmit} className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
             <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                    <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" htmlFor="firstName">
-                        Name <span className="text-red-500">*</span>
-                    </label>
-                    <input
+                    <FloatingLabelInput
                         id="firstName"
                         name="firstName"
                         required
-                        placeholder="Your name"
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        label="Name *"
                     />
                 </div>
                 <div className="space-y-2">
-                    <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" htmlFor="lastName">
-                        Last name <span className="text-red-500">*</span>
-                    </label>
-                    <input
+                    <FloatingLabelInput
                         id="lastName"
                         name="lastName"
                         required
-                        placeholder="Your last name"
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        label="Last name *"
                     />
                 </div>
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">
                 <div className="space-y-2">
-                    <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" htmlFor="email">
-                        Email <span className="text-red-500">*</span>
-                    </label>
-                    <input
+                    <FloatingLabelInput
                         id="email"
                         name="email"
                         type="email"
                         required
-                        placeholder="Your email address"
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        label="Email *"
                     />
                 </div>
                 <div className="space-y-2">
-                    <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" htmlFor="phone">
-                        Contact Number (Optional)
-                    </label>
-                    <input
+                    <FloatingLabelInput
                         id="phone"
                         name="phone"
                         type="tel"
-                        placeholder="+1 (555) 000-0000"
-                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                        label="Contact Number (Optional)"
                     />
                 </div>
             </div>
@@ -116,20 +102,17 @@ export function ContactForm() {
             </div>
 
             <div className="space-y-2">
-                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" htmlFor="message">
-                    Message <span className="text-red-500">*</span>
-                </label>
-                <textarea
+                <FloatingLabelTextarea
                     id="message"
                     name="message"
                     required
-                    placeholder="How can I help you?"
-                    className="flex min-h-[150px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 resize-y"
+                    label="Message *"
+                    className="min-h-[150px] resize-y"
                 />
             </div>
 
-            <Button type="submit" disabled={isPending} size="lg" className="w-full sm:w-auto">
-                {isPending ? "Sending..." : "Send Message"}
+            <Button type="submit" disabled={isPending} size="lg" className="w-full sm:w-auto min-w-[140px]">
+                {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Send Message"}
             </Button>
         </form>
     );

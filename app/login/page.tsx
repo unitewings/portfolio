@@ -7,6 +7,7 @@ import { useRouter } from "next/navigation";
 import { Button } from "@/components/shared/ui/button";
 import { toast } from "sonner";
 import { setSessionCookie } from "@/lib/auth-actions"; // We will create this
+import { FloatingLabelInput } from "@/components/ui/FloatingLabelInput";
 
 export default function LoginPage() {
     const [email, setEmail] = useState("");
@@ -44,25 +45,21 @@ export default function LoginPage() {
                 </div>
                 <form onSubmit={handleLogin} className="space-y-4">
                     <div className="space-y-2">
-                        <label className="text-sm font-medium">Email</label>
-                        <input
+                        <FloatingLabelInput
                             type="email"
                             required
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
-                            className="w-full rounded-md border bg-background px-3 py-2 text-sm"
-                            placeholder="admin@example.com"
+                            label="Email"
                         />
                     </div>
                     <div className="space-y-2">
-                        <label className="text-sm font-medium">Password</label>
-                        <input
+                        <FloatingLabelInput
                             type="password"
                             required
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
-                            className="w-full rounded-md border bg-background px-3 py-2 text-sm"
-                            placeholder="••••••••"
+                            label="Password"
                         />
                     </div>
                     <Button type="submit" className="w-full" disabled={isLoading}>

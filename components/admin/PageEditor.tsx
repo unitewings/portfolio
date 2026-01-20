@@ -20,7 +20,10 @@ export function PageEditor({ initialPage }: { initialPage?: Page }) {
         order: 0,
         seoTitle: "",
         seoDescription: "",
-        isSystem: false
+
+        isSystem: false,
+        type: 'page',
+        externalUrl: ""
     });
     const [isSaving, setIsSaving] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -89,41 +92,78 @@ export function PageEditor({ initialPage }: { initialPage?: Page }) {
                         </CardHeader>
                         <CardContent className="space-y-4">
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Title</label>
-                                <input
-                                    name="title"
-                                    value={formData.title}
+                                <label className="text-sm font-medium">Type</label>
+                                <select
+                                    name="type"
+                                    value={formData.type || 'page'}
                                     onChange={handleChange}
-                                    onBlur={handleTitleBlur}
                                     className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                                    placeholder="Page Title"
-                                    required
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">Slug (URL)</label>
-                                <input
-                                    name="slug"
-                                    value={formData.slug}
-                                    onChange={handleChange}
-                                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono disabled:opacity-50"
-                                    placeholder="page-slug"
-                                    required
                                     disabled={!!formData.isSystem}
-                                />
-                                {formData.isSystem && <p className="text-xs text-muted-foreground">System page slugs cannot be changed.</p>}
+                                >
+                                    <option value="page">Page</option>
+                                    <option value="heading">Heading</option>
+                                    <option value="link">External Link</option>
+                                </select>
+                                {formData.isSystem && <p className="text-xs text-muted-foreground">System page types cannot be changed.</p>}
                             </div>
+
                             <div className="space-y-2">
-                                <label className="text-sm font-medium">Content (Markdown)</label>
-                                <textarea
-                                    name="content"
-                                    value={formData.content}
-                                    onChange={handleChange}
-                                    className="flex min-h-[400px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono disabled:opacity-50"
-                                    placeholder="# Heading..."
-                                />
-                                {formData.isSystem && <p className="text-xs text-muted-foreground">System page slugs cannot be changed, but content is editable.</p>}
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium">Title</label>
+                                    <input
+                                        name="title"
+                                        value={formData.title}
+                                        onChange={handleChange}
+                                        onBlur={handleTitleBlur}
+                                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                        placeholder="Page Title"
+                                        required
+                                    />
+                                </div>
                             </div>
+
+                            {(formData.type === 'page' || !formData.type) && (
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium">Slug (URL)</label>
+                                    <input
+                                        name="slug"
+                                        value={formData.slug}
+                                        onChange={handleChange}
+                                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono disabled:opacity-50"
+                                        placeholder="page-slug"
+                                        required={formData.type === 'page'}
+                                        disabled={!!formData.isSystem}
+                                    />
+                                    {formData.isSystem && <p className="text-xs text-muted-foreground">System page slugs cannot be changed.</p>}
+                                </div>
+                            )}
+
+                            {formData.type === 'link' && (
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium">External URL</label>
+                                    <input
+                                        name="externalUrl"
+                                        value={formData.externalUrl || ""}
+                                        onChange={handleChange}
+                                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono"
+                                        placeholder="https://example.com"
+                                        required
+                                    />
+                                </div>
+                            )}
+                            {(formData.type === 'page' || !formData.type || formData.isSystem) && (
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium">Content (Markdown)</label>
+                                    <textarea
+                                        name="content"
+                                        value={formData.content}
+                                        onChange={handleChange}
+                                        className="flex min-h-[400px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono disabled:opacity-50"
+                                        placeholder="# Heading..."
+                                    />
+                                    {formData.isSystem && <p className="text-xs text-muted-foreground">System page slugs cannot be changed, but content is editable.</p>}
+                                </div>
+                            )}
                         </CardContent>
                     </Card>
                 </div>
@@ -160,31 +200,35 @@ export function PageEditor({ initialPage }: { initialPage?: Page }) {
                         </CardContent>
                     </Card>
 
-                    <Card>
-                        <CardHeader>
-                            <CardTitle>SEO Metadata</CardTitle>
-                        </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">SEO Title</label>
-                                <input
-                                    name="seoTitle"
-                                    value={formData.seoTitle || ""}
-                                    onChange={handleChange}
-                                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                                />
-                            </div>
-                            <div className="space-y-2">
-                                <label className="text-sm font-medium">SEO Description</label>
-                                <textarea
-                                    name="seoDescription"
-                                    value={formData.seoDescription || ""}
-                                    onChange={handleChange}
-                                    className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                                />
-                            </div>
-                        </CardContent>
-                    </Card>
+
+
+                    {(formData.type === 'page' || !formData.type) && (
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>SEO Metadata</CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium">SEO Title</label>
+                                    <input
+                                        name="seoTitle"
+                                        value={formData.seoTitle || ""}
+                                        onChange={handleChange}
+                                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                    />
+                                </div>
+                                <div className="space-y-2">
+                                    <label className="text-sm font-medium">SEO Description</label>
+                                    <textarea
+                                        name="seoDescription"
+                                        value={formData.seoDescription || ""}
+                                        onChange={handleChange}
+                                        className="flex min-h-[100px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                    />
+                                </div>
+                            </CardContent>
+                        </Card>
+                    )}
 
                     <Button type="submit" disabled={isSaving} className="w-full">
                         {isSaving ? "Saving..." : "Save Page"}
@@ -224,7 +268,7 @@ export function PageEditor({ initialPage }: { initialPage?: Page }) {
                         </div>
                     )}
                 </div>
-            </div>
-        </form>
+            </div >
+        </form >
     );
 }

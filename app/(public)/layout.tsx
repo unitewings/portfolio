@@ -2,6 +2,7 @@ import { Navigator } from "@/components/layout/Navigator";
 import { MobileMenu } from "@/components/layout/MobileMenu";
 import { getPages } from "@/lib/data";
 import { MobileHeader } from "@/components/layout/MobileHeader";
+import { Footer } from "@/components/layout/Footer";
 
 export default async function PublicLayout({
     children,
@@ -17,6 +18,7 @@ export default async function PublicLayout({
                 <div className="flex-1 p-6 md:p-8 lg:p-10">
                     <div className="mx-auto max-w-2xl w-full">
                         {children}
+                        <Footer />
                     </div>
                 </div>
             </main>

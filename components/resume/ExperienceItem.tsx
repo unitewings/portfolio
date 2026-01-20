@@ -13,7 +13,7 @@ export function ExperienceItem({ job }: { job: WorkExperience }) {
     const endDateStr = job.endDate === "Present" ? "Present" : formatDate(job.endDate);
 
     return (
-        <div className="relative pl-8 md:pl-0">
+        <div className="relative pl-8 md:pl-0 hover-lift rounded-lg p-4 hover:bg-muted/40 transition-all border border-transparent hover:border-border/50">
             {/* Mobile: Line is handled by parent or different structure, but here we assume a flex row on desktop */}
             <div className="flex flex-col md:flex-row md:gap-8 group">
 

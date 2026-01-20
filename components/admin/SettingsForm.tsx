@@ -7,6 +7,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/shared/ui
 import { updateSettings } from "@/lib/actions";
 import { toast } from "sonner";
 import { Plus, Trash2 } from "lucide-react";
+import { FloatingLabelInput } from "@/components/ui/FloatingLabelInput";
+import { FloatingLabelTextarea } from "@/components/ui/FloatingLabelTextarea";
 
 export function SettingsForm({ initialData }: { initialData: SiteSettings }) {
     const [formData, setFormData] = useState<SiteSettings>(initialData);
@@ -40,22 +42,20 @@ export function SettingsForm({ initialData }: { initialData: SiteSettings }) {
                 <CardContent className="space-y-4">
                     <div className="grid grid-cols-2 gap-4">
                         <div className="space-y-2">
-                            <label className="text-sm font-medium">Profile Name</label>
-                            <input
+                            <FloatingLabelInput
                                 name="profileName"
                                 value={formData.profileName || ""}
                                 onChange={handleChange}
-                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                label="Profile Name"
                                 placeholder="Jeff Su"
                             />
                         </div>
                         <div className="space-y-2">
-                            <label className="text-sm font-medium">Profile Label</label>
-                            <input
+                            <FloatingLabelInput
                                 name="profileLabel"
                                 value={formData.profileLabel || ""}
                                 onChange={handleChange}
-                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                label="Profile Label"
                                 placeholder="Productivity Expert"
                             />
                         </div>
@@ -109,16 +109,16 @@ export function SettingsForm({ initialData }: { initialData: SiteSettings }) {
                                     </select>
                                 </div>
                                 <div className="space-y-2">
-                                    <label className="text-xs font-medium">URL</label>
-                                    <input
+                                    <FloatingLabelInput
                                         value={link.url}
                                         onChange={(e) => {
                                             const newLinks = [...(formData.socialLinks || [])];
                                             newLinks[idx] = { ...newLinks[idx], url: e.target.value };
                                             setFormData(prev => ({ ...prev, socialLinks: newLinks }));
                                         }}
-                                        className="flex h-9 w-full rounded-md border border-input bg-background px-3 py-1 text-sm shadow-sm"
+                                        label="URL"
                                         placeholder="https://..."
+                                        className="h-auto"
                                     />
                                 </div>
                             </div>
@@ -146,23 +146,22 @@ export function SettingsForm({ initialData }: { initialData: SiteSettings }) {
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="space-y-2">
-                        <label className="text-sm font-medium">Newsletter Title</label>
-                        <input
+                        <FloatingLabelInput
                             name="newsletterTitle"
                             value={formData.newsletterTitle || ""}
                             onChange={handleChange}
-                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                            label="Newsletter Title"
                             placeholder="Newsletter"
                         />
                     </div>
                     <div className="space-y-2">
-                        <label className="text-sm font-medium">Newsletter Description</label>
-                        <textarea
+                        <FloatingLabelTextarea
                             name="newsletterDescription"
                             value={formData.newsletterDescription || ""}
                             onChange={handleChange}
-                            className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                            label="Newsletter Description"
                             placeholder="Join subscribers..."
+                            className="min-h-[80px]"
                         />
                     </div>
                 </CardContent>
@@ -174,23 +173,22 @@ export function SettingsForm({ initialData }: { initialData: SiteSettings }) {
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="space-y-2">
-                        <label className="text-sm font-medium">Global Site Title</label>
-                        <input
+                        <FloatingLabelInput
                             name="globalTitle"
                             value={formData.globalTitle}
                             onChange={handleChange}
-                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                            label="Global Site Title"
                             required
                         />
                     </div>
                     <div className="space-y-2">
-                        <label className="text-sm font-medium">Global Description</label>
-                        <textarea
+                        <FloatingLabelTextarea
                             name="globalDescription"
                             value={formData.globalDescription}
                             onChange={handleChange}
-                            className="flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                            label="Global Description"
                             required
+                            className="min-h-[80px]"
                         />
                     </div>
                 </CardContent>
@@ -202,16 +200,18 @@ export function SettingsForm({ initialData }: { initialData: SiteSettings }) {
                 </CardHeader>
                 <CardContent>
                     <div className="space-y-2">
-                        <label className="text-sm font-medium">Intro Markdown</label>
-                        <p className="text-xs text-muted-foreground mb-2">
-                            This text appears at the top of your home page. Supports basic Markdown (bold, italic, list).
-                        </p>
-                        <textarea
-                            name="homeIntroContent"
-                            value={formData.homeIntroContent}
-                            onChange={handleChange}
-                            className="flex min-h-[200px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 font-mono"
-                        />
+                        <div className="space-y-2">
+                            <p className="text-xs text-muted-foreground mb-2">
+                                This text appears at the top of your home page. Supports basic Markdown (bold, italic, list).
+                            </p>
+                            <FloatingLabelTextarea
+                                name="homeIntroContent"
+                                value={formData.homeIntroContent}
+                                onChange={handleChange}
+                                label="Intro Markdown"
+                                className="min-h-[200px] font-mono"
+                            />
+                        </div>
                     </div>
                 </CardContent>
             </Card>
@@ -222,27 +222,28 @@ export function SettingsForm({ initialData }: { initialData: SiteSettings }) {
                 </CardHeader>
                 <CardContent className="space-y-4">
                     <div className="space-y-2">
-                        <label className="text-sm font-medium">Contact Intro Markdown</label>
-                        <p className="text-xs text-muted-foreground mb-2">
-                            Text displayed above the contact form.
-                        </p>
-                        <textarea
-                            name="contactIntro"
-                            value={formData.contactIntro || ""}
-                            onChange={handleChange}
-                            className="flex min-h-[120px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono"
-                            placeholder="## Get in touch..."
-                        />
-                    </div>
-                    <div className="space-y-2">
-                        <label className="text-sm font-medium">Contact Email (Display)</label>
-                        <input
-                            name="contactEmail"
-                            value={formData.contactEmail || ""}
-                            onChange={handleChange}
-                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                            placeholder="hello@example.com"
-                        />
+                        <div className="space-y-2">
+                            <p className="text-xs text-muted-foreground mb-2">
+                                Text displayed above the contact form.
+                            </p>
+                            <FloatingLabelTextarea
+                                name="contactIntro"
+                                value={formData.contactIntro || ""}
+                                onChange={handleChange}
+                                label="Contact Intro Markdown"
+                                placeholder="## Get in touch..."
+                                className="min-h-[120px] font-mono"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <FloatingLabelInput
+                                name="contactEmail"
+                                value={formData.contactEmail || ""}
+                                onChange={handleChange}
+                                label="Contact Email (Display)"
+                                placeholder="hello@example.com"
+                            />
+                        </div>
                     </div>
                 </CardContent>
             </Card>
@@ -253,18 +254,20 @@ export function SettingsForm({ initialData }: { initialData: SiteSettings }) {
                 </CardHeader>
                 <CardContent>
                     <div className="space-y-2">
-                        <label className="text-sm font-medium">Head Scripts</label>
-                        <p className="text-xs text-muted-foreground mb-2">
-                            Raw HTML/JS injected into the &lt;head&gt;. Use for Analytics, verification tags, etc.
-                            <strong> Warning: Be careful with what you paste here.</strong>
-                        </p>
-                        <textarea
-                            name="headScripts"
-                            value={formData.headScripts || ""}
-                            onChange={handleChange}
-                            className="flex min-h-[150px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 font-mono"
-                            placeholder="<script>...</script>"
-                        />
+                        <div className="space-y-2">
+                            <p className="text-xs text-muted-foreground mb-2">
+                                Raw HTML/JS injected into the &lt;head&gt;. Use for Analytics, verification tags, etc.
+                                <strong> Warning: Be careful with what you paste here.</strong>
+                            </p>
+                            <FloatingLabelTextarea
+                                name="headScripts"
+                                value={formData.headScripts || ""}
+                                onChange={handleChange}
+                                label="Head Scripts"
+                                className="min-h-[150px] font-mono"
+                                placeholder="<script>...</script>"
+                            />
+                        </div>
                     </div>
                 </CardContent>
             </Card>

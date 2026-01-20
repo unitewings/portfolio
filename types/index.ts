@@ -138,4 +138,8 @@ export interface Page {
     // System pages (Home, Resume, Contact)
     isSystem?: boolean;
     path?: string; // Override default /slug
+
+    // Navigation Features
+    type?: 'page' | 'heading' | 'link';
+    externalUrl?: string; // For type === 'link'
 }

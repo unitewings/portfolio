@@ -4,6 +4,7 @@ import './globals.css';
 import { ThemeProvider } from '@/components/shared/ThemeProvider';
 import { Toaster } from 'sonner';
 import { getSiteSettings } from "@/lib/data";
+import ParticlesBackground from '@/components/ui/ParticlesBackground';
 
 const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 
@@ -17,6 +18,8 @@ export async function generateMetadata(): Promise<Metadata> {
     },
   };
 }
+
+
 
 export default async function RootLayout({
   children,
@@ -41,6 +44,7 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <ParticlesBackground />
           {children}
           <Toaster position="bottom-right" />
         </ThemeProvider>

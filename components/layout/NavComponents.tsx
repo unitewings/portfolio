@@ -40,7 +40,7 @@ export function ProfileCard({ name, label, socialLinks = [] }: { name: string; l
                             href={link.url}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="p-2 text-muted-foreground hover:text-primary transition-colors"
+                            className="p-2 text-muted-foreground hover:text-primary transition-colors hover-lift rounded-md"
                             title={link.network}
                         >
                             <Icon size={20} />
@@ -74,9 +74,10 @@ export function NavMenu({ pages = [] }: NavMenuProps) {
         .map(p => {
             const Icon = iconMap[p.id] || iconMap.default;
             return {
-                href: p.path || `/${p.slug}`,
+                href: p.type === 'link' ? (p.externalUrl || '#') : (p.path || `/${p.slug}`),
                 label: p.title,
-                icon: Icon
+                icon: Icon,
+                type: p.type || 'page'
             };
         });
 
@@ -89,12 +90,41 @@ export function NavMenu({ pages = [] }: NavMenuProps) {
             {allLinks.map((link) => {
                 const Icon = link.icon;
                 const isActive = pathname === link.href;
+
+                if (link.type === 'heading') {
+                    return (
+                        <div key={link.href} className="px-3 pt-6 pb-2">
+                            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/50">
+                                {link.label}
+                            </h3>
+                        </div>
+                    );
+                }
+
+                if (link.type === 'link') {
+                    return (
+                        <a
+                            key={link.href}
+                            href={link.href}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className={cn(
+                                "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover-lift",
+                                "text-muted-foreground hover:bg-muted hover:text-foreground"
+                            )}
+                        >
+                            <Icon size={18} />
+                            {link.label}
+                        </a>
+                    );
+                }
+
                 return (
                     <Link
                         key={link.href}
                         href={link.href}
                         className={cn(
-                            "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors",
+                            "flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors hover-lift",
                             isActive
                                 ? "bg-primary/10 text-primary"
                                 : "text-muted-foreground hover:bg-muted hover:text-foreground"
@@ -115,7 +145,7 @@ export function ThemeToggle() {
     return (
         <button
             onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-            className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors"
+            className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors hover-lift"
         >
             <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
             <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
