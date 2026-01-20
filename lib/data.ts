@@ -173,7 +173,6 @@ export async function getSiteSettings(): Promise<SiteSettings> {
             newsletterTitle: "Newsletter",
             newsletterDescription: "Join 50k+ subscribers. Practical productivity tips delivered to your inbox.",
             contactIntro: "## Get in Touch\nI'd love to hear from you. Fill out the form below.",
-            contactIntro: "## Get in Touch\nI'd love to hear from you. Fill out the form below.",
             contactEmail: "hello@example.com",
             logoUrl: "/images/Portrait.jpg"
         };
@@ -188,7 +187,6 @@ export async function getSiteSettings(): Promise<SiteSettings> {
             profileLabel: "Productivity Expert",
             newsletterTitle: "Newsletter",
             newsletterDescription: "Join 50k+ subscribers. Practical productivity tips delivered to your inbox.",
-            contactIntro: "## Get in Touch\nI'd love to hear from you. Fill out the form below.",
             contactIntro: "## Get in Touch\nI'd love to hear from you. Fill out the form below.",
             contactEmail: "hello@example.com",
             logoUrl: "/images/Portrait.jpg"
