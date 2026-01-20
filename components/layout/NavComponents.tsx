@@ -94,7 +94,7 @@ export function NavMenu({ pages = [] }: NavMenuProps) {
                 if (link.type === 'heading') {
                     return (
                         <div key={link.href} className="px-3 pt-6 pb-2">
-                            <h3 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground/50">
+                            <h3 className="text-sm font-semibold uppercase tracking-wider text-muted-foreground">
                                 {link.label}
                             </h3>
                         </div>
