@@ -102,6 +102,7 @@ export interface SiteSettings {
     newsletterDescription?: string;
     contactIntro?: string;
     contactEmail?: string;
+    logoUrl?: string; // Path to logo image
 }
 
 export interface Subscriber {

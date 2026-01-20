@@ -6,7 +6,7 @@ import { cn } from "@/lib/utils";
 import { Home, FileText, Settings, Linkedin, Youtube, Moon, Sun, Mail, Github, Twitter, Instagram, Facebook, Globe } from "lucide-react";
 import { useTheme } from "next-themes";
 
-export function ProfileCard({ name, label, socialLinks = [] }: { name: string; label: string; socialLinks?: any[] }) {
+export function ProfileCard({ name, label, socialLinks = [], image, size = 64 }: { name: string; label: string; socialLinks?: any[], image?: string, size?: number }) {
     const iconMap: Record<string, any> = {
         linkedin: Linkedin,
         youtube: Youtube,
@@ -20,11 +20,14 @@ export function ProfileCard({ name, label, socialLinks = [] }: { name: string; l
 
     return (
         <div className="flex flex-col gap-4 p-4">
-            <div className="relative h-16 w-16 overflow-hidden rounded-full border-2 border-surface">
-                {/* Placeholder for profile image */}
-                <div className="h-full w-full bg-primary/20 flex items-center justify-center text-primary font-bold text-xl">
-                    {name.split(" ").map(n => n[0]).join("").substring(0, 2).toUpperCase()}
-                </div>
+            <div className="relative overflow-hidden rounded-full border-2 border-surface" style={{ width: size, height: size }}>
+                {image ? (
+                    <img src={image} alt={name} className="h-full w-full object-cover" />
+                ) : (
+                    <div className="h-full w-full bg-primary/20 flex items-center justify-center text-primary font-bold text-xl">
+                        {name.split(" ").map(n => n[0]).join("").substring(0, 2).toUpperCase()}
+                    </div>
+                )}
             </div>
             <div>
                 <h2 className="text-xl font-bold text-foreground">{name}</h2>
