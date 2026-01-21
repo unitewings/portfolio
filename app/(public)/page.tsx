@@ -2,7 +2,7 @@ import { getSiteSettings } from "@/lib/data";
 import { MarkdownRenderer } from "@/components/shared/MarkdownRenderer";
 import { NewsletterForm } from "@/components/layout/NewsletterForm";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 3600; // Revalidate every hour
 
 export default async function Home() {
     const settings = await getSiteSettings();

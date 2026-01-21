@@ -17,8 +17,19 @@ export function MarkdownRenderer({ content, className }: MarkdownRendererProps) 
                 remarkPlugins={[remarkGfm]}
                 rehypePlugins={[rehypeHighlight]}
                 components={{
-                    // Custom link handling if needed, e.g. opening external links in new tab
-                    a: ({ node, ...props }) => <a target="_blank" rel="noopener noreferrer" {...props} />
+                    // Custom link handling
+                    a: ({ node, ...props }) => <a target="_blank" rel="noopener noreferrer" {...props} />,
+                    // Custom image handling
+                    img: (props) => (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                            {...props}
+                            loading="lazy"
+                            className="rounded-lg w-full h-auto object-cover my-4"
+                            style={{ maxWidth: '100%', height: 'auto' }}
+                            alt={props.alt || 'Post image'}
+                        />
+                    )
                 }}
             >
                 {content}
