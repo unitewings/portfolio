@@ -1,12 +1,13 @@
-import { getPostBySlug } from "@/lib/data";
+import { getPostBySlug, getSiteSettings } from "@/lib/data";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
 import { MarkdownRenderer } from "@/components/shared/MarkdownRenderer";
+import { NewsletterForm } from "@/components/layout/NewsletterForm";
 
 export const dynamic = "force-dynamic";
 
 interface Props {
-    params: { slug: string };
+    params: Promise<{ slug: string }>;
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -23,9 +24,10 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
 }
 
-export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function BlogPostPage({ params }: Props) {
     const { slug } = await params;
     const post = await getPostBySlug(slug);
+    const settings = await getSiteSettings();
 
     if (!post) {
         notFound();
@@ -57,6 +59,13 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
             )}
 
             <MarkdownRenderer content={post.content} />
+
+            <div className="mt-16 border-t pt-8">
+                <NewsletterForm
+                    title={settings.newsletterTitle || "Newsletter"}
+                    description={settings.newsletterDescription || "Join subscribers."}
+                />
+            </div>
         </article>
     );
 }

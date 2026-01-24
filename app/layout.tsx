@@ -21,6 +21,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
 
 
+import { HeadScripts } from '@/components/shared/HeadScripts';
+
 export default async function RootLayout({
   children,
 }: {
@@ -31,11 +33,7 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        {settings.headScripts && (
-          <script
-            dangerouslySetInnerHTML={{ __html: settings.headScripts }}
-          />
-        )}
+        {settings.headScripts && <HeadScripts content={settings.headScripts} />}
       </head>
       <body className={inter.variable}>
         <ThemeProvider
