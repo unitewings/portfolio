@@ -1,4 +1,4 @@
-import React, { InputHTMLAttributes } from "react";
+import React, { InputHTMLAttributes, useId } from "react";
 import { cn } from "@/lib/utils";
 
 interface FloatingLabelInputProps extends InputHTMLAttributes<HTMLInputElement> {
@@ -7,8 +7,9 @@ interface FloatingLabelInputProps extends InputHTMLAttributes<HTMLInputElement> 
 
 export const FloatingLabelInput = React.forwardRef<HTMLInputElement, FloatingLabelInputProps>(
     ({ className, label, id, ...props }, ref) => {
+        const uniqueId = useId();
         // Ensure we have an ID for the label to associate with
-        const inputId = id || props.name || "input-" + Math.random().toString(36).substr(2, 9);
+        const inputId = id || props.name || `input-${uniqueId}`;
 
         return (
             <div className="relative">
