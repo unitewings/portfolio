@@ -214,5 +214,15 @@ export async function saveContactSubmission(submission: ContactSubmission): Prom
     await setDoc(docRef, submission);
 }
 
+export async function deleteContactSubmission(id: string): Promise<void> {
+    const docRef = doc(db, "contact_submissions", id);
+    await deleteDoc(docRef);
+}
+
+export async function deleteSubscriber(id: string): Promise<void> {
+    const docRef = doc(db, "subscribers", id);
+    await deleteDoc(docRef);
+}
+
 
 

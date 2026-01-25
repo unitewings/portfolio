@@ -33,16 +33,54 @@ export default async function BlogPostPage({ params }: Props) {
         notFound();
     }
 
-    // Password Protection Check
+    // --- Password Protection Logic ---
+    let isLocked = false;
+    let hintLink = post.passwordHintLink;
+
+    // 1. Check if Post itself is protected
     if (post.isProtected) {
         const { cookies } = await import("next/headers");
         const cookieStore = await cookies();
         const hasAccess = cookieStore.get(`access_granted_${post.id}`);
+        if (!hasAccess) isLocked = true;
+    }
 
-        if (!hasAccess) {
-            const { PasswordProtection } = await import("@/components/blog/PasswordProtection");
-            return <PasswordProtection postId={post.id} hintLink={post.passwordHintLink} />;
+    // 2. Check if Post is inherited from a Protected Page
+    if (!isLocked) { // If already locked by post, no need to check page (double lock?)
+        // Actually, if locked by post, maybe page unlocks it? 
+        // User said: "if someone who has unlocked the page and directly opens a blog then it should be unlocked."
+        // So PAGE access overrides POST lock? Or just works as an alternative key?
+        // Let's assume Page Access grants access to its children.
+
+        const { getPages } = await import("@/lib/data");
+        const allPages = await getPages();
+        const parentPage = allPages.find(page =>
+            page.postIds?.includes(post.id) && page.isProtected
+        );
+
+        if (parentPage) {
+            const { cookies } = await import("next/headers");
+            const cookieStore = await cookies();
+            const hasPageAccess = cookieStore.get(`access_granted_page_${parentPage.id}`);
+
+            if (hasPageAccess) {
+                isLocked = false; // Page access unlocks it
+            } else {
+                // If we didn't have post access (or post wasn't protected), but page IS protected, we adhere to page.
+                // If post was protected and we failed check 1, we stay locked unless page access unlocks us.
+
+                // If post was NOT protected, but page IS, we must LOCK.
+                if (!post.isProtected) {
+                    isLocked = true;
+                    hintLink = parentPage.passwordHintLink || hintLink; // Inherit hint
+                }
+            }
         }
+    }
+
+    if (isLocked) {
+        const { PasswordProtection } = await import("@/components/blog/PasswordProtection");
+        return <PasswordProtection postId={post.id} hintLink={hintLink} />;
     }
 
     return (

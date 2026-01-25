@@ -13,6 +13,7 @@ export default async function PublicLayout({
     const pages = await getPages();
     const settings = await getSiteSettings();
     return (
+        /* Main Public Layout Grid */
         <div className="mx-auto grid min-h-screen w-full max-w-[1400px] grid-cols-1 md:grid-cols-[300px_1fr]">
             <MobileHeader />
             <Navigator />

@@ -145,18 +145,19 @@ export async function updatePost(formData: FormData) {
 }
 
 export async function verifyPostPassword(postId: string, password: string) {
-    const { getPosts } = await import("@/lib/data");
+    const { getPosts, getPages } = await import("@/lib/data");
     const posts = await getPosts();
     const post = posts.find(p => p.id === postId);
 
-    if (!post || !post.password) {
-        return { success: false, message: "Post not found or not protected" };
+    if (!post) {
+        return { success: false, message: "Post not found" };
     }
 
-    if (post.password === password) {
-        const { cookies } = await import("next/headers");
-        const cookieStore = await cookies();
-        // Set a cookie to remember access. HttpOnly for security, though this is a simple protection.
+    const { cookies } = await import("next/headers");
+    const cookieStore = await cookies();
+
+    // 1. Check direct Post Password
+    if (post.isProtected && post.password === password) {
         cookieStore.set(`access_granted_${postId}`, "true", {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
@@ -166,6 +167,24 @@ export async function verifyPostPassword(postId: string, password: string) {
         return { success: true };
     }
 
+    // 2. Check Parent Page Password (Inheritance)
+    const allPages = await getPages();
+    const parentPage = allPages.find(page =>
+        page.postIds?.includes(postId) && page.isProtected
+    );
+
+    if (parentPage && parentPage.password === password) {
+        // Unlock the PAGE, which in turn unlocks the post
+        cookieStore.set(`access_granted_page_${parentPage.id}`, "true", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            maxAge: 60 * 60 * 24 * 7, // 1 week
+            path: "/"
+        });
+        return { success: true };
+    }
+
+    // 3. If neither matched
     return { success: false, message: "Incorrect password" };
 }
 
@@ -298,4 +317,28 @@ export async function verifyPagePassword(pageId: string, password: string) {
     }
 
     return { success: false, message: "Incorrect password" };
+}
+
+export async function deleteMessagesAction(ids: string[]) {
+    try {
+        const { deleteContactSubmission } = await import("@/lib/data");
+        await Promise.all(ids.map(id => deleteContactSubmission(id)));
+        revalidatePath("/admin/messages");
+        return { success: true, message: `Deleted ${ids.length} messages` };
+    } catch (error) {
+        console.error("Delete messages error", error);
+        return { success: false, message: "Failed to delete messages" };
+    }
+}
+
+export async function deleteSubscribersAction(ids: string[]) {
+    try {
+        const { deleteSubscriber } = await import("@/lib/data");
+        await Promise.all(ids.map(id => deleteSubscriber(id)));
+        revalidatePath("/admin/subscribers");
+        return { success: true, message: `Deleted ${ids.length} subscribers` };
+    } catch (error) {
+        console.error("Delete subscribers error", error);
+        return { success: false, message: "Failed to delete subscribers" };
+    }
 }
