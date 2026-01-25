@@ -33,6 +33,18 @@ export default async function BlogPostPage({ params }: Props) {
         notFound();
     }
 
+    // Password Protection Check
+    if (post.isProtected) {
+        const { cookies } = await import("next/headers");
+        const cookieStore = await cookies();
+        const hasAccess = cookieStore.get(`access_granted_${post.id}`);
+
+        if (!hasAccess) {
+            const { PasswordProtection } = await import("@/components/blog/PasswordProtection");
+            return <PasswordProtection postId={post.id} hintLink={post.passwordHintLink} />;
+        }
+    }
+
     return (
         <article className="mx-auto max-w-3xl py-12">
             <header className="mb-8 space-y-4">

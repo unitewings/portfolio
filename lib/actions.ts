@@ -48,6 +48,10 @@ export async function createPost(formData: FormData) {
     const status = formData.get("status") as "draft" | "published";
     const tagsStr = formData.get("tags") as string; // comma separated
     const pinned = formData.get("pinned") === "on";
+    const isListed = formData.get("isListed") !== "off"; // Default true
+    const isProtected = formData.get("isProtected") === "on"; // Default false
+    const password = formData.get("password") as string;
+    const passwordHintLink = formData.get("passwordHintLink") as string;
 
     const slug = title
         .toLowerCase()
@@ -64,7 +68,12 @@ export async function createPost(formData: FormData) {
         tags: tagsStr ? tagsStr.split(",").map(t => t.trim()) : [],
         status,
         pinned,
-        type: "article"
+
+        type: "article",
+        isListed,
+        isProtected,
+        password,
+        passwordHintLink
     };
 
     await savePost(newPost);
@@ -81,6 +90,10 @@ export async function updatePost(formData: FormData) {
     const status = formData.get("status") as "draft" | "published";
     const tagsStr = formData.get("tags") as string;
     const pinned = formData.get("pinned") === "on";
+    const isListed = formData.get("isListed") !== "off"; // Default true
+    const isProtected = formData.get("isProtected") === "on"; // Default false
+    const password = formData.get("password") as string;
+    const passwordHintLink = formData.get("passwordHintLink") as string;
     const slug = formData.get("slug") as string;
 
     // SEO Fields
@@ -117,7 +130,11 @@ export async function updatePost(formData: FormData) {
         type: "article",
         seoTitle,
         seoDescription,
-        canonicalUrl
+        canonicalUrl,
+        isListed,
+        isProtected,
+        password,
+        passwordHintLink
     };
 
     await savePost(updatedPost);
@@ -125,6 +142,31 @@ export async function updatePost(formData: FormData) {
     revalidatePath(`/posts/${slug}`);
     revalidatePath("/admin/posts");
     redirect("/admin/posts");
+}
+
+export async function verifyPostPassword(postId: string, password: string) {
+    const { getPosts } = await import("@/lib/data");
+    const posts = await getPosts();
+    const post = posts.find(p => p.id === postId);
+
+    if (!post || !post.password) {
+        return { success: false, message: "Post not found or not protected" };
+    }
+
+    if (post.password === password) {
+        const { cookies } = await import("next/headers");
+        const cookieStore = await cookies();
+        // Set a cookie to remember access. HttpOnly for security, though this is a simple protection.
+        cookieStore.set(`access_granted_${postId}`, "true", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            maxAge: 60 * 60 * 24 * 7, // 1 week
+            path: "/"
+        });
+        return { success: true };
+    }
+
+    return { success: false, message: "Incorrect password" };
 }
 
 export async function deletePost(id: string) {

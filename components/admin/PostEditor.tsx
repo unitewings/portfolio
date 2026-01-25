@@ -3,6 +3,7 @@
 import { createPost, updatePost } from "@/lib/actions";
 import { Button } from "@/components/shared/ui/button";
 import { BlogPost } from "@/types";
+import { useState } from "react";
 
 interface PostEditorProps {
     initialData?: BlogPost;
@@ -11,6 +12,7 @@ interface PostEditorProps {
 export default function PostEditor({ initialData }: PostEditorProps) {
     const isEditing = !!initialData;
     const action = isEditing ? updatePost : createPost;
+    const [isProtected, setIsProtected] = useState(initialData?.isProtected || false);
 
     return (
         <form action={action} className="space-y-6 max-w-3xl">
@@ -90,18 +92,83 @@ export default function PostEditor({ initialData }: PostEditorProps) {
                 </div>
             </div>
 
-            <div className="flex items-center space-x-2">
-                <input
-                    type="checkbox"
-                    id="pinned"
-                    name="pinned"
-                    defaultChecked={initialData?.pinned}
-                    className="h-4 w-4"
-                />
-                <label htmlFor="pinned" className="text-sm font-medium leading-none">
-                    Pin to Highlights
-                </label>
+            {/* Visibility & Highlights */}
+            <div className="flex flex-col gap-3 rounded-lg border p-4">
+                <h3 className="font-semibold text-sm mb-1">Visibility Settings</h3>
+                <div className="flex items-center space-x-2">
+                    <input
+                        type="checkbox"
+                        id="pinned"
+                        name="pinned"
+                        defaultChecked={initialData?.pinned}
+                        className="h-4 w-4"
+                    />
+                    <label htmlFor="pinned" className="text-sm font-medium leading-none">
+                        Pin to Highlights
+                    </label>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                    <input
+                        type="checkbox"
+                        id="isListed"
+                        name="isListed"
+                        defaultChecked={initialData?.isListed !== false} // Default true
+                        className="h-4 w-4"
+                    />
+                    <label htmlFor="isListed" className="text-sm font-medium leading-none">
+                        List on Website
+                    </label>
+                </div>
             </div>
+
+            {/* Password Protection */}
+            <div className="flex flex-col gap-3 rounded-lg border p-4">
+                <div className="flex items-center justify-between">
+                    <h3 className="font-semibold text-sm">Access Control</h3>
+                </div>
+
+                <div className="flex items-center space-x-2">
+                    <input
+                        type="checkbox"
+                        id="isProtected"
+                        name="isProtected"
+                        checked={isProtected}
+                        onChange={(e) => setIsProtected(e.target.checked)}
+                        className="h-4 w-4"
+                    />
+                    <label htmlFor="isProtected" className="text-sm font-medium leading-none">
+                        Enable Password Protection
+                    </label>
+                </div>
+
+                {isProtected && (
+                    <div className="grid gap-3 pt-2 animate-in fade-in slide-in-from-top-2 duration-300">
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Password</label>
+                            <input
+                                name="password"
+                                type="text"
+                                defaultValue={initialData?.password}
+                                className="w-full rounded-md border p-2 bg-background"
+                                placeholder="Secure password"
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="text-sm font-medium">Password Hint / Link</label>
+                            <input
+                                name="passwordHintLink"
+                                type="text"
+                                defaultValue={initialData?.passwordHintLink}
+                                className="w-full rounded-md border p-2 bg-background"
+                                placeholder="https://gumroad.com/..."
+                            />
+                            <p className="text-xs text-muted-foreground">URL where users can get the password.</p>
+                        </div>
+                    </div>
+                )}
+            </div>
+
 
             <div className="border-t pt-4 space-y-4">
                 <h3 className="font-semibold">SEO Settings</h3>

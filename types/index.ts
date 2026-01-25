@@ -88,6 +88,12 @@ export interface BlogPost {
     seoTitle?: string;
     seoDescription?: string;
     canonicalUrl?: string;
+
+    // Visibility & Protection
+    isListed?: boolean;
+    isProtected?: boolean;
+    password?: string;
+    passwordHintLink?: string;
 }
 
 export interface SiteSettings {

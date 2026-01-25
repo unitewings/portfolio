@@ -16,7 +16,10 @@ export default async function TagPage(props: { params: Promise<{ tag: string }> 
     const { tag } = params;
     const decodedTag = decodeURIComponent(tag);
     const posts = await getPosts();
-    const filteredPosts = posts.filter(p => p.tags?.some(t => t.toLowerCase() === decodedTag.toLowerCase()));
+    const filteredPosts = posts.filter(p => {
+        if (p.isListed === false) return false;
+        return p.tags?.some(t => t.toLowerCase() === decodedTag.toLowerCase());
+    });
 
     return (
         <main className="max-w-3xl mx-auto px-4 py-12">
