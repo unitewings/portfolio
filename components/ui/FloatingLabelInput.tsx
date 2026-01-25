@@ -21,6 +21,7 @@ export const FloatingLabelInput = React.forwardRef<HTMLInputElement, FloatingLab
                     )}
                     placeholder=" "
                     ref={ref}
+                    suppressHydrationWarning={true}
                     {...props}
                 />
                 <label

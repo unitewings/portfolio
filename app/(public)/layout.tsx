@@ -3,6 +3,7 @@ import { MobileMenu } from "@/components/layout/MobileMenu";
 import { getPages, getSiteSettings } from "@/lib/data";
 import { MobileHeader } from "@/components/layout/MobileHeader";
 import { Footer } from "@/components/layout/Footer";
+import { NewsletterPopup } from "@/components/layout/NewsletterPopup";
 
 export default async function PublicLayout({
     children,
@@ -24,6 +25,10 @@ export default async function PublicLayout({
                 </div>
             </main>
             <MobileMenu pages={pages} settings={settings} />
+            <NewsletterPopup
+                title={settings.newsletterTitle || "Newsletter"}
+                description={settings.newsletterDescription || "Join subscribers."}
+            />
         </div>
     );
 }

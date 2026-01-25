@@ -273,3 +273,29 @@ export async function submitContactForm(formData: FormData) {
         return { success: false, message: "Failed to send message" };
     }
 }
+
+
+export async function verifyPagePassword(pageId: string, password: string) {
+    const { getPages } = await import("@/lib/data");
+    const pages = await getPages();
+    const page = pages.find(p => p.id === pageId);
+
+    if (!page || !page.password) {
+        return { success: false, message: "Page not found or not protected" };
+    }
+
+    if (page.password === password) {
+        const { cookies } = await import("next/headers");
+        const cookieStore = await cookies();
+        // Set a cookie to remember access to this specific page
+        cookieStore.set(`access_granted_page_${pageId}`, "true", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            maxAge: 60 * 60 * 24 * 7, // 1 week
+            path: "/"
+        });
+        return { success: true };
+    }
+
+    return { success: false, message: "Incorrect password" };
+}

@@ -1,15 +1,16 @@
 "use client";
 
 import { useState } from "react";
-import { Page } from "@/types";
+import { Page, BlogPost } from "@/types";
 import { Button } from "@/components/shared/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/shared/ui/card";
 import { savePageAction, deletePageAction } from "@/lib/actions";
 import { toast } from "sonner";
 import { useRouter } from "next/navigation";
 import { Trash2 } from "lucide-react";
+import { BlogPicker } from "./BlogPicker";
 
-export function PageEditor({ initialPage }: { initialPage?: Page }) {
+export function PageEditor({ initialPage, allPosts = [] }: { initialPage?: Page; allPosts?: BlogPost[] }) {
     const router = useRouter();
     const [formData, setFormData] = useState<Page>(initialPage || {
         id: crypto.randomUUID(),
@@ -23,7 +24,14 @@ export function PageEditor({ initialPage }: { initialPage?: Page }) {
 
         isSystem: false,
         type: 'page',
-        externalUrl: ""
+        externalUrl: "",
+
+        // Custom Page Defaults
+        postIds: [],
+        isProtected: false,
+        password: "",
+        passwordHintLink: "",
+        lastUpdated: new Date().toISOString()
     });
     const [isSaving, setIsSaving] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
@@ -38,11 +46,19 @@ export function PageEditor({ initialPage }: { initialPage?: Page }) {
         setFormData(prev => ({ ...prev, [name]: checked }));
     };
 
+    const handlePostSelection = (ids: string[]) => {
+        setFormData(prev => ({ ...prev, postIds: ids }));
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         setIsSaving(true);
+
+        // Ensure we update lastUpdated
+        const finalData = { ...formData, lastUpdated: new Date().toISOString() };
+
         try {
-            const result = await savePageAction(formData);
+            const result = await savePageAction(finalData);
             if (result.success) {
                 toast.success(result.message);
                 router.push("/admin/pages");
@@ -58,7 +74,6 @@ export function PageEditor({ initialPage }: { initialPage?: Page }) {
     };
 
     const handleDeleteConfirm = async () => {
-        // setIsDeleting(true); // Already true if we are here
         try {
             const result = await deletePageAction(formData.id);
             if (result.success) {
@@ -66,7 +81,7 @@ export function PageEditor({ initialPage }: { initialPage?: Page }) {
                 router.push("/admin/pages");
             } else {
                 toast.error(result.message);
-                setIsDeleting(false); // Reset on error
+                setIsDeleting(false);
             }
         } catch (error) {
             toast.error("Failed to delete page.");
@@ -83,9 +98,9 @@ export function PageEditor({ initialPage }: { initialPage?: Page }) {
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-6">
-            <div className="flex gap-4">
-                <div className="w-2/3 space-y-6">
+        <form onSubmit={handleSubmit} className="space-y-6 pb-20">
+            <div className="flex flex-col lg:flex-row gap-4">
+                <div className="w-full lg:w-2/3 space-y-6">
                     <Card>
                         <CardHeader>
                             <CardTitle>Page Content {formData.isSystem && <span className="text-sm font-normal text-muted-foreground ml-2">(System Page)</span>}</CardTitle>
@@ -104,22 +119,19 @@ export function PageEditor({ initialPage }: { initialPage?: Page }) {
                                     <option value="heading">Heading</option>
                                     <option value="link">External Link</option>
                                 </select>
-                                {formData.isSystem && <p className="text-xs text-muted-foreground">System page types cannot be changed.</p>}
                             </div>
 
                             <div className="space-y-2">
-                                <div className="space-y-2">
-                                    <label className="text-sm font-medium">Title</label>
-                                    <input
-                                        name="title"
-                                        value={formData.title}
-                                        onChange={handleChange}
-                                        onBlur={handleTitleBlur}
-                                        className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                                        placeholder="Page Title"
-                                        required
-                                    />
-                                </div>
+                                <label className="text-sm font-medium">Title</label>
+                                <input
+                                    name="title"
+                                    value={formData.title}
+                                    onChange={handleChange}
+                                    onBlur={handleTitleBlur}
+                                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                    placeholder="Page Title"
+                                    required
+                                />
                             </div>
 
                             {(formData.type === 'page' || !formData.type) && (
@@ -151,6 +163,7 @@ export function PageEditor({ initialPage }: { initialPage?: Page }) {
                                     />
                                 </div>
                             )}
+
                             {(formData.type === 'page' || !formData.type || formData.isSystem) && (
                                 <div className="space-y-2">
                                     <label className="text-sm font-medium">Content (Markdown)</label>
@@ -161,14 +174,30 @@ export function PageEditor({ initialPage }: { initialPage?: Page }) {
                                         className="flex min-h-[400px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm font-mono disabled:opacity-50"
                                         placeholder="# Heading..."
                                     />
-                                    {formData.isSystem && <p className="text-xs text-muted-foreground">System page slugs cannot be changed, but content is editable.</p>}
                                 </div>
                             )}
                         </CardContent>
                     </Card>
+
+                    {/* Curated Posts Section */}
+                    {(formData.type === 'page' || !formData.type) && (
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Curated Posts (Optional)</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                                <p className="text-xs text-muted-foreground mb-4">Select and reorder blogs to display them at the bottom of the page.</p>
+                                <BlogPicker
+                                    allPosts={allPosts}
+                                    selectedIds={formData.postIds || []}
+                                    onSelectionChange={handlePostSelection}
+                                />
+                            </CardContent>
+                        </Card>
+                    )}
                 </div>
 
-                <div className="w-1/3 space-y-6">
+                <div className="w-full lg:w-1/3 space-y-6">
                     <Card>
                         <CardHeader>
                             <CardTitle>Settings</CardTitle>
@@ -200,7 +229,54 @@ export function PageEditor({ initialPage }: { initialPage?: Page }) {
                         </CardContent>
                     </Card>
 
+                    {/* Protection Settings */}
+                    {(formData.type === 'page' || !formData.type) && (
+                        <Card>
+                            <CardHeader>
+                                <CardTitle>Access Control</CardTitle>
+                            </CardHeader>
+                            <CardContent className="space-y-4">
+                                <div className="flex items-center space-x-2">
+                                    <input
+                                        type="checkbox"
+                                        id="isProtected"
+                                        name="isProtected"
+                                        checked={formData.isProtected}
+                                        onChange={handleCheckboxChange}
+                                        className="h-4 w-4"
+                                    />
+                                    <label htmlFor="isProtected" className="text-sm font-medium leading-none">
+                                        Password Protection
+                                    </label>
+                                </div>
 
+                                {formData.isProtected && (
+                                    <div className="space-y-4 animate-in fade-in slide-in-from-top-2 pt-2">
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-medium">Password</label>
+                                            <input
+                                                name="password"
+                                                value={formData.password || ""}
+                                                onChange={handleChange}
+                                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                                placeholder="Secure password"
+                                            />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-medium">Hint Link</label>
+                                            <input
+                                                name="passwordHintLink"
+                                                value={formData.passwordHintLink || ""}
+                                                onChange={handleChange}
+                                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
+                                                placeholder="https://..."
+                                            />
+                                        </div>
+                                    </div>
+                                )}
+                            </CardContent>
+                        </Card>
+                    )}
 
                     {(formData.type === 'page' || !formData.type) && (
                         <Card>

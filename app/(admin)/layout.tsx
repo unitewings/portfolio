@@ -41,6 +41,7 @@ export default function AdminLayout({
                         <FileText size={18} />
                         Pages
                     </Link>
+
                     <Link href="/admin/messages" className="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-muted transition-colors">
                         <FileText size={18} />
                         Messages

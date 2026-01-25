@@ -7,7 +7,7 @@ import { toast } from "sonner";
 import { Mail, Loader2 } from "lucide-react";
 import { FloatingLabelInput } from "@/components/ui/FloatingLabelInput";
 
-export function NewsletterForm({ title, description }: { title: string; description: string }) {
+export function NewsletterForm({ title, description, onSuccess }: { title: string; description: string; onSuccess?: () => void }) {
     const [isPending, startTransition] = useTransition();
     const [subbed, setSubbed] = useState(false);
 
@@ -17,6 +17,7 @@ export function NewsletterForm({ title, description }: { title: string; descript
             if (result.success) {
                 toast.success(result.message);
                 setSubbed(true);
+                if (onSuccess) onSuccess();
             } else {
                 toast.error(result.message);
             }

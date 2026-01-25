@@ -148,4 +148,26 @@ export interface Page {
     // Navigation Features
     type?: 'page' | 'heading' | 'link';
     externalUrl?: string; // For type === 'link'
+
+    // Custom Page Features (Unified)
+    postIds?: string[];
+    isProtected?: boolean;
+    password?: string;
+    passwordHintLink?: string;
+    lastUpdated?: string;
+}
+
+export interface CustomPage {
+    id: string;
+    title: string;
+    slug: string; // -> /p/slug
+    content: string; // Markdown intro
+    postIds: string[]; // List of curated blog IDs in order
+
+    // Protection
+    isProtected: boolean;
+    password?: string;
+    passwordHintLink?: string;
+
+    lastUpdated: string;
 }
