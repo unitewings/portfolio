@@ -39,11 +39,11 @@ export function NewsletterPopup({ title, description }: NewsletterPopupProps) {
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogContent className="sm:max-w-[425px] p-0 border-none bg-transparent shadow-none">
-                <div className="relative bg-primary/5 backdrop-blur-xl border border-white/10 rounded-lg shadow-xl overflow-hidden">
+                <div className="relative bg-background/60 backdrop-blur-xl border border-primary/20 rounded-lg shadow-2xl overflow-hidden ring-1 ring-primary/10">
                     <div className="absolute right-2 top-2 z-10">
                         <button
                             onClick={() => setIsOpen(false)}
-                            className="rounded-full p-1 hover:bg-muted transition-colors"
+                            className="rounded-full p-1 hover:bg-muted/50 transition-colors"
                         >
                             <X className="h-4 w-4 text-muted-foreground" />
                             <span className="sr-only">Close</span>
@@ -57,6 +57,7 @@ export function NewsletterPopup({ title, description }: NewsletterPopupProps) {
                         title={title}
                         description={description}
                         onSuccess={handleSuccess}
+                        variant="clean"
                     />
                 </div>
             </DialogContent>

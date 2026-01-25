@@ -17,6 +17,7 @@ export default async function TagPage(props: { params: Promise<{ tag: string }> 
     const decodedTag = decodeURIComponent(tag);
     const posts = await getPosts();
     const filteredPosts = posts.filter(p => {
+        if (p.status && p.status !== 'published') return false;
         if (p.isListed === false) return false;
         return p.tags?.some(t => t.toLowerCase() === decodedTag.toLowerCase());
     });

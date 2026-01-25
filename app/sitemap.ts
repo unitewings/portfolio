@@ -19,12 +19,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     }));
 
     // 4. Map posts to sitemap format
-    const postEntries: MetadataRoute.Sitemap = posts.map((post) => ({
-        url: `${baseUrl}/posts/${post.slug}`,
-        lastModified: new Date(post.date),
-        changeFrequency: 'weekly',
-        priority: 0.6,
-    }));
+    const postEntries: MetadataRoute.Sitemap = posts
+        .filter(post => post.status === 'published' && post.isListed !== false)
+        .map((post) => ({
+            url: `${baseUrl}/posts/${post.slug}`,
+            lastModified: new Date(post.date),
+            changeFrequency: 'weekly',
+            priority: 0.6,
+        }));
 
     return [...pageEntries, ...postEntries];
 }

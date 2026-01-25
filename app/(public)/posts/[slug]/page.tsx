@@ -29,7 +29,7 @@ export default async function BlogPostPage({ params }: Props) {
     const post = await getPostBySlug(slug);
     const settings = await getSiteSettings();
 
-    if (!post) {
+    if (!post || (post.status && post.status !== 'published')) {
         notFound();
     }
 

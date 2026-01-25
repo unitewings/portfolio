@@ -60,7 +60,7 @@ export default async function DynamicPage({ params }: PageProps) {
         // Maintain order of postIds using map -> find
         curatedPosts = page.postIds
             .map(id => allPosts.find(p => p.id === id))
-            .filter((p): p is BlogPost => !!p);
+            .filter((p): p is BlogPost => !!p && p.status === 'published' && p.isListed !== false);
     }
 
     return (

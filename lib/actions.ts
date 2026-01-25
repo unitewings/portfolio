@@ -48,7 +48,7 @@ export async function createPost(formData: FormData) {
     const status = formData.get("status") as "draft" | "published";
     const tagsStr = formData.get("tags") as string; // comma separated
     const pinned = formData.get("pinned") === "on";
-    const isListed = formData.get("isListed") !== "off"; // Default true
+    const isListed = formData.get("isListed") === "on"; // Checkbox present = true
     const isProtected = formData.get("isProtected") === "on"; // Default false
     const password = formData.get("password") as string;
     const passwordHintLink = formData.get("passwordHintLink") as string;
@@ -90,7 +90,7 @@ export async function updatePost(formData: FormData) {
     const status = formData.get("status") as "draft" | "published";
     const tagsStr = formData.get("tags") as string;
     const pinned = formData.get("pinned") === "on";
-    const isListed = formData.get("isListed") !== "off"; // Default true
+    const isListed = formData.get("isListed") === "on"; // Checkbox present = true
     const isProtected = formData.get("isProtected") === "on"; // Default false
     const password = formData.get("password") as string;
     const passwordHintLink = formData.get("passwordHintLink") as string;

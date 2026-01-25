@@ -2,6 +2,7 @@ import Link from "next/link";
 import { getPosts } from "@/lib/data";
 import { Button } from "@/components/shared/ui/button";
 import { Plus, Edit, Trash2 } from "lucide-react";
+import { CopyLinkButton } from "@/components/admin/CopyLinkButton";
 import { deletePost } from "@/lib/actions";
 
 export default async function PostsManagerPage() {
@@ -27,6 +28,7 @@ export default async function PostsManagerPage() {
                                 <th className="h-12 px-4 align-middle font-medium text-muted-foreground">Title</th>
                                 <th className="h-12 px-4 align-middle font-medium text-muted-foreground w-[120px]">Date</th>
                                 <th className="h-12 px-4 align-middle font-medium text-muted-foreground w-[100px]">Status</th>
+                                <th className="h-12 px-4 align-middle font-medium text-muted-foreground w-[60px] text-right">Link</th>
                                 <th className="h-12 px-4 align-middle font-medium text-muted-foreground w-[100px] text-right">Actions</th>
                             </tr>
                         </thead>
@@ -41,6 +43,9 @@ export default async function PostsManagerPage() {
                                         <span className={post.status === "published" ? "text-green-600 font-medium" : "text-amber-600 font-medium"}>
                                             {post.status}
                                         </span>
+                                    </td>
+                                    <td className="p-4 align-middle text-right">
+                                        <CopyLinkButton slug={post.slug} />
                                     </td>
                                     <td className="p-4 align-middle text-right">
                                         <div className="flex items-center justify-end gap-2">

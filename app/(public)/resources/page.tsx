@@ -22,6 +22,7 @@ export default async function ResourcesPage({ searchParams }: ResourcesPageProps
 
     // Filter Posts
     const filteredPosts = posts.filter(post => {
+        if (post.status && post.status !== 'published') return false; // Hide drafts
         if (post.isListed === false) return false; // Explicitly hidden
         if (activeTopic) return post.tags?.map(t => t.trim()).includes(activeTopic);
         return true;
