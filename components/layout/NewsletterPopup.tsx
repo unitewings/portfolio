@@ -21,7 +21,7 @@ export function NewsletterPopup({ title, description }: NewsletterPopupProps) {
             // Show popup after delay
             const timer = setTimeout(() => {
                 setIsOpen(true);
-            }, 3000); // 3 seconds delay
+            }, 10000); // 10 seconds delay
             return () => clearTimeout(timer);
         }
         setHasChecked(true);
@@ -39,7 +39,7 @@ export function NewsletterPopup({ title, description }: NewsletterPopupProps) {
     return (
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogContent className="sm:max-w-[425px] p-0 border-none bg-transparent shadow-none">
-                <div className="relative bg-card rounded-lg border shadow-xl overflow-hidden">
+                <div className="relative bg-primary/5 backdrop-blur-xl border border-white/10 rounded-lg shadow-xl overflow-hidden">
                     <div className="absolute right-2 top-2 z-10">
                         <button
                             onClick={() => setIsOpen(false)}

@@ -11,7 +11,7 @@ export async function Navigator() {
     const pinnedPosts = posts.filter(p => p.pinned).slice(0, 5);
 
     return (
-        <aside className="sticky top-0 h-screen w-full border-r bg-background/50 glass-panel max-md:hidden">
+        <aside className="sticky top-[10px] h-[calc(100vh-20px)] ml-[10px] rounded-2xl bg-primary/5 backdrop-blur-xl border border-white/10 max-md:hidden">
             <div className="flex h-full flex-col justify-between p-6">
                 <div className="flex flex-col gap-6 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
                     {/* Profile & Nav */}
