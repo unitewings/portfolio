@@ -13,8 +13,8 @@ export default async function PublicLayout({
     const pages = await getPages();
     const settings = await getSiteSettings();
     return (
-        /* Main Public Layout Grid */
-        <div className="mx-auto grid min-h-screen w-full max-w-[1400px] grid-cols-1 md:grid-cols-[300px_1fr]">
+        /* Main Public Layout Grid - Force Rebuild */
+        <div suppressHydrationWarning className="mx-auto grid min-h-screen w-full max-w-[1400px] grid-cols-1 md:grid-cols-[300px_1fr]">
             <MobileHeader />
             <Navigator />
             <main className="flex min-w-0 flex-col bg-background pt-14 pb-20 md:py-0">

@@ -1,4 +1,4 @@
-import { ProfileCard, NavMenu, ThemeToggle } from "./NavComponents";
+import { ProfileCard, NavMenu, ThemeToggle, NotificationToggle } from "./NavComponents";
 import { getSiteSettings, getPages, getPosts } from "@/lib/data";
 import { NewsletterForm } from "@/components/layout/NewsletterForm";
 import Link from "next/link";
@@ -11,7 +11,7 @@ export async function Navigator() {
     const pinnedPosts = posts.filter(p => p.pinned).slice(0, 5);
 
     return (
-        <aside className="sticky top-[10px] h-[calc(100vh-20px)] ml-[10px] rounded-2xl bg-primary/5 backdrop-blur-xl border border-white/10 max-md:hidden">
+        <aside suppressHydrationWarning className="sticky top-[10px] h-[calc(100vh-20px)] ml-[10px] rounded-2xl bg-primary/5 backdrop-blur-xl border border-white/10 max-md:hidden">
             <div className="flex h-full flex-col justify-between p-6">
                 <div className="flex flex-col gap-6 overflow-y-auto [&::-webkit-scrollbar]:hidden [-ms-overflow-style:'none'] [scrollbar-width:'none']">
                     {/* Profile & Nav */}
@@ -25,7 +25,8 @@ export async function Navigator() {
                     </div>
                 </div>
 
-                <div className="pt-6 mt-auto">
+                <div className="pt-6 mt-auto space-y-2">
+                    <NotificationToggle />
                     <ThemeToggle />
                 </div>
             </div>

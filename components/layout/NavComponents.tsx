@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 import { Home, FileText, Settings, Linkedin, Youtube, Moon, Sun, Mail, Github, Twitter, Instagram, Facebook, Globe } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Logo } from "@/components/ui/Logo";
+import { useState, useEffect } from "react";
 
 export function ProfileCard({ name, label, socialLinks = [], image, size = 64 }: { name: string; label: string; socialLinks?: any[], image?: string, size?: number }) {
     const iconMap: Record<string, any> = {
@@ -18,6 +19,21 @@ export function ProfileCard({ name, label, socialLinks = [], image, size = 64 }:
         email: Mail,
         website: Globe
     };
+
+    const [mounted, setMounted] = useState(false);
+    useEffect(() => {
+        setMounted(true);
+    }, []);
+
+    if (!mounted) {
+        return (
+            <div className="flex flex-col gap-4 p-4 opacity-0">
+                {/* Placeholder to match dimensions roughly */}
+                <div className="h-16 w-full" />
+                <div className="h-10 w-3/4" />
+            </div>
+        );
+    }
 
     return (
         <div className="flex flex-col gap-4 p-4">
@@ -150,6 +166,25 @@ export function ThemeToggle() {
             <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
             <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
             <span className="ml-2">Toggle Theme</span>
+        </button>
+    );
+}
+
+import useFCMToken from "@/hooks/useFCMToken";
+import { Bell, BellOff } from "lucide-react";
+
+export function NotificationToggle() {
+    const { notificationPermission, requestPermission } = useFCMToken();
+
+    if (notificationPermission === 'granted') return null; // Hide if already granted (or maybe show enabled state)
+
+    return (
+        <button
+            onClick={requestPermission}
+            className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition-colors hover-lift group"
+        >
+            <Bell className="h-[1.2rem] w-[1.2rem] group-hover:text-primary transition-colors" />
+            <span className="ml-2 group-hover:text-primary transition-colors">Enable Notifications</span>
         </button>
     );
 }

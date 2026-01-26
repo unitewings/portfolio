@@ -46,6 +46,10 @@ export default function AdminLayout({
                         <FileText size={18} />
                         Messages
                     </Link>
+                    <Link href="/admin/notifications" className="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-muted transition-colors">
+                        <span className="flex h-[18px] w-[18px] items-center justify-center">🔔</span>
+                        Notifications
+                    </Link>
                 </nav>
 
                 <div className="p-4 mt-auto border-t">
