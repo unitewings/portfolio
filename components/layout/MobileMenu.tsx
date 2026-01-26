@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Home, FileText, Settings, Mail, Menu, MoreVertical, X } from "lucide-react";
 import { useState, useEffect } from "react";
-import { ProfileCard, NavMenu, ThemeToggle } from "./NavComponents";
+import { ProfileCard, NavMenu, ThemeToggle, NotificationToggle } from "./NavComponents";
 
 
 export function MobileMenu({ pages = [], settings }: { pages?: any[], settings?: any }) {
@@ -59,7 +59,8 @@ export function MobileMenu({ pages = [], settings }: { pages?: any[], settings?:
                             />
                             <NavMenu pages={pages} />
 
-                            <div className="mt-8 border-t pt-6">
+                            <div className="mt-8 border-t pt-6 space-y-4">
+                                <NotificationToggle />
                                 <ThemeToggle />
                             </div>
                         </div>

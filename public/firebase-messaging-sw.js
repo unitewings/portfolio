@@ -21,8 +21,37 @@ messaging.onBackgroundMessage((payload) => {
     const notificationTitle = payload.notification.title;
     const notificationOptions = {
         body: payload.notification.body,
-        icon: payload.notification.icon || '/icon.png' // You might want to add an icon to public/
+        icon: payload.notification.icon || '/icon.png',
+        image: payload.notification.image,
+        tag: payload.notification.tag,
+        renotify: payload.notification.renotify,
+        requireInteraction: payload.notification.requireInteraction,
+        actions: payload.notification.actions ? JSON.parse(payload.notification.actions) : undefined,
+        data: payload.data
     };
 
     self.registration.showNotification(notificationTitle, notificationOptions);
+});
+
+self.addEventListener('notificationclick', function (event) {
+    console.log('[firebase-messaging-sw.js] Notification click Received.', event);
+    event.notification.close();
+
+    // Custom handling for 'link' in data or fcm_options
+    const link = event.notification.data?.link || event.notification.data?.url || '/';
+
+    event.waitUntil(
+        clients.matchAll({ type: 'window', includeUncontrolled: true }).then(windowClients => {
+            // Check if there is already a window/tab open with the target URL
+            for (let i = 0; i < windowClients.length; i++) {
+                const client = windowClients[i];
+                if (client.url === link && 'focus' in client) {
+                    return client.focus();
+                }
+            }
+            if (clients.openWindow) {
+                return clients.openWindow(link);
+            }
+        })
+    );
 });

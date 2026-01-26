@@ -97,11 +97,15 @@ const useFCMToken = () => {
     };
 
     useEffect(() => {
-        // Auto-load token ONLY if permission is ALREADY granted
-        if (typeof window !== 'undefined' && 'serviceWorker' in navigator && Notification.permission === 'granted') {
-            retrieveToken();
-            setNotificationPermission('granted');
-        } else if (typeof window !== 'undefined') {
+        // Attempt to auto-load token if already granted OR if user wants it automatic (best effort)
+        // Note: Browsers will block this if it's not a user gesture, but it doesn't hurt to try
+        if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+            if (Notification.permission === 'granted') {
+                retrieveToken();
+            } else if (Notification.permission === 'default') {
+                // Try to request, but it might fail or be ignored by browser
+                requestPermission();
+            }
             setNotificationPermission(Notification.permission);
         }
     }, []);
@@ -134,10 +138,24 @@ const useFCMToken = () => {
                     const messaging = getMessaging(app);
                     unsubscribe = onMessage(messaging, (payload) => {
                         console.log('Foreground message received:', payload);
+
+                        // Show in-app toast
                         if (payload.notification) {
                             toast(payload.notification.title, {
                                 description: payload.notification.body,
                             });
+
+                            // also try to show system notification for mobile feel
+                            if ('serviceWorker' in navigator) {
+                                navigator.serviceWorker.ready.then(registration => {
+                                    registration.showNotification(payload.notification?.title || 'New Message', {
+                                        body: payload.notification?.body,
+                                        icon: '/icon.png',
+                                        data: payload.data, // pass data for click handling
+                                        tag: 'foreground-notification'
+                                    });
+                                });
+                            }
                         }
                     });
                 } catch (error) {

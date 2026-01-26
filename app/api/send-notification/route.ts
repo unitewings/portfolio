@@ -3,11 +3,13 @@ import { getAdminMessaging, getAdminDb } from '@/lib/firebase-admin';
 
 export async function POST(req: NextRequest) {
     try {
-        const { title, body, targetToken, userId, broadcast } = await req.json();
+        const { title, body, targetToken, userId, broadcast, link, imageUrl, iconUrl, tag } = await req.json();
 
         if (!title || !body) {
             return NextResponse.json({ error: 'Title and body are required' }, { status: 400 });
         }
+
+        const clickUrl = link || '/';
 
         // Initialize Admin SDK services lazily inside the handler
         let adminMessaging;
@@ -21,8 +23,42 @@ export async function POST(req: NextRequest) {
             return NextResponse.json({ error: "Firebase Admin Init Failed: " + e.message }, { status: 500 });
         }
 
+        // Base message validation
+        // Remove undefined values cleanly
+        const cleanPayload = (obj: any) => {
+            return Object.entries(obj)
+                .filter(([_, v]) => v != null && v !== '')
+                .reduce((acc, [k, v]) => ({ ...acc, [k]: v }), {});
+        };
+
+        const baseMessage = {
+            notification: cleanPayload({
+                title,
+                body,
+                imageUrl: imageUrl || undefined,
+            }),
+            webpush: {
+                notification: cleanPayload({
+                    title,
+                    body,
+                    icon: iconUrl || '/icon.png',
+                    image: imageUrl || undefined,
+                    tag: tag || undefined,
+                    requireInteraction: true,
+                }),
+                fcm_options: {
+                    link: clickUrl
+                }
+            },
+            data: {
+                link: clickUrl,
+                url: clickUrl,
+                click_action: clickUrl
+            }
+        };
+
         if (broadcast) {
-            // Fetch all tokens from Firestore (Batching might be needed for huge datasets)
+            // Fetch all tokens from Firestore
             let tokensSnapshot;
             try {
                 tokensSnapshot = await adminDb.collection('fcm_tokens').get();
@@ -36,30 +72,26 @@ export async function POST(req: NextRequest) {
             }
 
             const tokens = tokensSnapshot.docs.map(doc => doc.data().token).filter(t => !!t);
-
-            // Deduplicate tokens just in case
             const uniqueTokens = Array.from(new Set(tokens));
 
             if (uniqueTokens.length === 0) {
                 return NextResponse.json({ success: false, message: 'No valid tokens found' });
             }
 
+            // Construct message for multicast
+            // Multicast uses "tokens" array, singular "token" is for single
             const message = {
-                notification: { title, body },
+                ...baseMessage,
                 tokens: uniqueTokens,
             };
 
-            const response = await adminMessaging.sendEachForMulticast(message);
+            const response = await adminMessaging.sendEachForMulticast(message as any);
 
             // Cleanup invalid tokens
             if (response.failureCount > 0) {
                 response.responses.forEach((resp, idx) => {
                     if (!resp.success) {
-                        // Remove invalid token from DB
-                        // Note: We used Set() so idx matches uniqueTokens array
                         const invalidToken = uniqueTokens[idx];
-                        // Ideally, delete from Firestore here. 
-                        // adminDb.collection('fcm_tokens').doc(invalidToken).delete();
                         console.log(`Failed to send to ${invalidToken}: ${resp.error}`);
                     }
                 });
@@ -72,12 +104,10 @@ export async function POST(req: NextRequest) {
             });
         }
 
+        // Single Send Logic
         let token = targetToken;
 
         if (!token && userId) {
-            // Look up token by userId
-            // This assumes 1:amp mapping or just taking one. 
-            // Real world: you might want to send to ALL tokens for that user.
             const tokensSnapshot = await adminDb.collection('fcm_tokens')
                 .where('userId', '==', userId)
                 .orderBy('lastUpdated', 'desc')
@@ -94,14 +124,11 @@ export async function POST(req: NextRequest) {
         }
 
         const message = {
-            notification: {
-                title,
-                body,
-            },
+            ...baseMessage,
             token: token,
         };
 
-        const response = await adminMessaging.send(message);
+        const response = await adminMessaging.send(message as any);
 
         return NextResponse.json({ success: true, response });
     } catch (error: any) {
