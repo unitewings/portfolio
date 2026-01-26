@@ -23,6 +23,8 @@ export async function generateMetadata(): Promise<Metadata> {
 
 import { HeadScripts } from '@/components/shared/HeadScripts';
 
+import FCMClient from '@/components/FCMClient';
+
 export default async function RootLayout({
   children,
 }: {
@@ -42,6 +44,7 @@ export default async function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
+          <FCMClient />
           <ParticlesBackground />
           {children}
           <Toaster position="bottom-right" />

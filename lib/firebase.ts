@@ -38,4 +38,11 @@ const db = initializeFirestore(app, {
 
 const auth = getAuth(app);
 
-export { app, analytics, db, auth };
+let messaging: any;
+if (typeof window !== "undefined") {
+    import("firebase/messaging").then(({ getMessaging }) => {
+        messaging = getMessaging(app);
+    });
+}
+
+export { app, analytics, db, auth, messaging };
