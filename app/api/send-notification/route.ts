@@ -87,14 +87,59 @@ export async function POST(req: NextRequest) {
 
             const response = await adminMessaging.sendEachForMulticast(message as any);
 
-            // Cleanup invalid tokens
+            // Cleanup invalid tokens with smart logic
             if (response.failureCount > 0) {
-                response.responses.forEach((resp, idx) => {
+                const cleanupPromises = response.responses.map(async (resp, idx) => {
                     if (!resp.success) {
                         const invalidToken = uniqueTokens[idx];
-                        console.log(`Failed to send to ${invalidToken}: ${resp.error}`);
+                        const docRef = adminDb.collection('fcm_tokens').doc(invalidToken);
+                        const errCode = resp.error?.code || '';
+
+                        // List of permanent errors where we should delete immediately
+                        const permanentErrors = [
+                            'messaging/registration-token-not-registered',
+                            'messaging/invalid-registration-token',
+                            'messaging/invalid-argument'
+                        ];
+
+                        if (permanentErrors.includes(errCode)) {
+                            console.log(`Deleting invalid token (Permanent Error: ${errCode}): ${invalidToken}`);
+                            return docRef.delete();
+                        } else {
+                            // Transient error: Increment failure count
+                            try {
+                                return adminDb.runTransaction(async (t: any) => {
+                                    const doc = await t.get(docRef);
+                                    if (!doc.exists) return; // Already gone
+
+                                    const currentFailures = (doc.data().failureCount || 0) + 1;
+
+                                    if (currentFailures >= 5) {
+                                        console.log(`Deleting token after ${currentFailures} failures: ${invalidToken}`);
+                                        t.delete(docRef);
+                                    } else {
+                                        t.update(docRef, {
+                                            failureCount: currentFailures,
+                                            lastFailureError: errCode,
+                                            lastFailure: new Date()
+                                        });
+                                    }
+                                });
+                            } catch (err) {
+                                console.error(`Failed to update failure count for ${invalidToken}`, err);
+                            }
+                        }
+                    } else {
+                        // Optional: Reset failure count on success if it exists
+                        // To save writes, we usually don't do this for every success, 
+                        // but if you want strict "consecutive fails", you would update here.
+                        // For now, ignoring successes to minimize DB writes.
+                        return Promise.resolve();
                     }
                 });
+
+                // Wait for all cleanup ops (non-blocking for the response, but good to wait for logging)
+                await Promise.allSettled(cleanupPromises);
             }
 
             return NextResponse.json({
