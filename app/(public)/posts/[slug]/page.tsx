@@ -1,7 +1,7 @@
 import { getPostBySlug, getSiteSettings } from "@/lib/data";
 import { notFound } from "next/navigation";
 import { Metadata } from "next";
-import { MarkdownRenderer } from "@/components/shared/MarkdownRenderer";
+import { MDXRenderer } from "@/components/shared/MDXRenderer";
 import { NewsletterForm } from "@/components/layout/NewsletterForm";
 
 export const dynamic = "force-dynamic";
@@ -108,7 +108,7 @@ export default async function BlogPostPage({ params }: Props) {
                 />
             )}
 
-            <MarkdownRenderer content={post.content} />
+            <MDXRenderer content={post.content} />
 
             <div className="mt-16 border-t pt-8">
                 <NewsletterForm

@@ -50,6 +50,10 @@ export default function AdminLayout({
                         <span className="flex h-[18px] w-[18px] items-center justify-center">🔔</span>
                         Notifications
                     </Link>
+                    <Link href="/admin/mdx-components" className="flex items-center gap-3 px-3 py-2 text-sm font-medium rounded-md hover:bg-muted transition-colors">
+                        <span className="flex h-[18px] w-[18px] items-center justify-center">⚡</span>
+                        MDX Components
+                    </Link>
                 </nav>
 
                 <div className="p-4 mt-auto border-t">

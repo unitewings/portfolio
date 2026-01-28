@@ -1,7 +1,7 @@
 import { getResume } from "@/lib/data";
 import { ExperienceItem } from "@/components/resume/ExperienceItem";
 import { Mail, Github, Linkedin, Globe, Twitter, Youtube, Facebook, Instagram } from "lucide-react";
-import { MarkdownRenderer } from "@/components/shared/MarkdownRenderer";
+import { MDXRenderer } from "@/components/shared/MDXRenderer";
 
 // Simple icon helper (duplicated for now to avoid large refactor, or we could export from NavComponents)
 const getSocialIcon = (network: string) => {
@@ -28,7 +28,7 @@ export default async function ResumePage() {
             <section className="space-y-4">
                 <h1 className="text-4xl font-bold tracking-tight">{basics.name}</h1>
                 <div className="text-xl text-muted-foreground max-w-2xl">
-                    <MarkdownRenderer content={basics.summary} />
+                    <MDXRenderer content={basics.summary} />
                 </div>
 
                 <div className="flex flex-wrap gap-4 pt-2">

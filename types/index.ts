@@ -171,3 +171,8 @@ export interface CustomPage {
 
     lastUpdated: string;
 }
+
+export interface MDXSettings {
+    iframeAllowlist: string; // One domain per line, simple text
+    updatedAt?: string;
+}

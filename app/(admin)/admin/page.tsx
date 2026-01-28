@@ -1,5 +1,8 @@
 import { getPosts, getResume } from "@/lib/data";
 import { getAdminDb } from "@/lib/firebase-admin";
+
+export const dynamic = "force-dynamic";
+
 import { FileText, Eye, TrendingUp, Bell, Mail, MessageSquare } from "lucide-react";
 
 // Mock Card Component since we didn't implement full shadcn

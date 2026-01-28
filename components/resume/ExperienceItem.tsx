@@ -1,4 +1,4 @@
-import { MarkdownRenderer } from "@/components/shared/MarkdownRenderer";
+import { MDXRenderer } from "@/components/shared/MDXRenderer";
 import { WorkExperience } from "@/types";
 
 export function ExperienceItem({ job }: { job: WorkExperience }) {
@@ -38,7 +38,7 @@ export function ExperienceItem({ job }: { job: WorkExperience }) {
 
                         {job.summary && (
                             <div className="text-sm text-muted-foreground">
-                                <MarkdownRenderer content={job.summary} />
+                                <MDXRenderer content={job.summary} />
                             </div>
                         )}
 

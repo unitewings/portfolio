@@ -1,6 +1,6 @@
 import { db } from "@/lib/firebase";
 import { doc, getDoc, setDoc, collection, getDocs, deleteDoc } from "firebase/firestore";
-import { ResumeData, BlogPost, SiteSettings, Page, Subscriber, ContactSubmission } from "@/types";
+import { ResumeData, BlogPost, SiteSettings, Page, Subscriber, ContactSubmission, MDXSettings } from "@/types";
 // import fs from 'fs/promises'; // REMOVED
 // import path from 'path'; // REMOVED
 import { getLocalResume, getLocalPosts } from "@/lib/seed";
@@ -224,5 +224,63 @@ export async function deleteSubscriber(id: string): Promise<void> {
     await deleteDoc(docRef);
 }
 
+// --- MDX Settings Operations ---
 
+// Default allowlist for SecureIframe
+const DEFAULT_IFRAME_ALLOWLIST = `youtube.com
+www.youtube.com
+youtube-nocookie.com
+www.youtube-nocookie.com
+player.vimeo.com
+vimeo.com
+player.bilibili.com
+codepen.io
+codesandbox.io
+stackblitz.com
+jsfiddle.net
+replit.com
+figma.com
+www.figma.com
+docs.google.com
+drive.google.com
+calendar.google.com
+pitch.com
+slides.com
+prezi.com
+google.com/maps
+maps.google.com
+open.spotify.com
+w.soundcloud.com
+gist.github.com
+loom.com
+www.loom.com
+notion.so`;
 
+export async function getMDXSettings(): Promise<MDXSettings> {
+    try {
+        const docRef = doc(db, "settings", "mdx");
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            return docSnap.data() as MDXSettings;
+        }
+
+        // Return defaults if not found
+        return {
+            iframeAllowlist: DEFAULT_IFRAME_ALLOWLIST,
+        };
+    } catch (error) {
+        console.warn("Firestore error (MDX settings), using defaults:", error);
+        return {
+            iframeAllowlist: DEFAULT_IFRAME_ALLOWLIST,
+        };
+    }
+}
+
+export async function saveMDXSettings(settings: MDXSettings): Promise<void> {
+    const docRef = doc(db, "settings", "mdx");
+    await setDoc(docRef, {
+        ...settings,
+        updatedAt: new Date().toISOString(),
+    });
+}

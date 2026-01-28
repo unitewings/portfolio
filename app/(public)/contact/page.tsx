@@ -1,6 +1,6 @@
 import { getSiteSettings } from "@/lib/data";
 import { ContactForm } from "@/components/contact/ContactForm";
-import { MarkdownRenderer } from "@/components/shared/MarkdownRenderer";
+import { MDXRenderer } from "@/components/shared/MDXRenderer";
 import { Metadata } from "next";
 
 export const dynamic = "force-dynamic";
@@ -21,7 +21,7 @@ export default async function ContactPage() {
             <div className="space-y-6 text-center">
                 <h1 className="text-4xl font-bold tracking-tight">Contact</h1>
                 <div className="mx-auto max-w-xl text-lg text-muted-foreground">
-                    <MarkdownRenderer content={settings.contactIntro || "Get in touch"} />
+                    <MDXRenderer content={settings.contactIntro || "Get in touch"} />
                 </div>
             </div>
 

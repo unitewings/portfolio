@@ -1,6 +1,6 @@
 import { getPosts, getPageBySlug } from "@/lib/data";
 import { PostCard } from "@/components/feed/PostCard";
-import { MarkdownRenderer } from "@/components/shared/MarkdownRenderer";
+import { MDXRenderer } from "@/components/shared/MDXRenderer";
 import { notFound } from "next/navigation";
 
 export const dynamic = "force-dynamic";
@@ -34,7 +34,7 @@ export default async function ResourcesPage({ searchParams }: ResourcesPageProps
     return (
         <div className="space-y-8">
             <header className="space-y-4">
-                <MarkdownRenderer content={page.content} />
+                <MDXRenderer content={page.content} />
 
                 {/* Topic Filter Bar */}
                 {allTopics.length > 0 && (

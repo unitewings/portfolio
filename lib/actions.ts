@@ -342,3 +342,15 @@ export async function deleteSubscribersAction(ids: string[]) {
         return { success: false, message: "Failed to delete subscribers" };
     }
 }
+
+export async function updateMDXSettings(iframeAllowlist: string) {
+    try {
+        const { saveMDXSettings } = await import("@/lib/data");
+        await saveMDXSettings({ iframeAllowlist });
+        revalidatePath("/admin/mdx-components");
+        return { success: true, message: "MDX settings saved successfully!" };
+    } catch (error) {
+        console.error("Update MDX settings error", error);
+        return { success: false, message: "Failed to save MDX settings" };
+    }
+}

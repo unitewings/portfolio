@@ -1,5 +1,5 @@
 import { getSiteSettings } from "@/lib/data";
-import { MarkdownRenderer } from "@/components/shared/MarkdownRenderer";
+import { MDXRenderer } from "@/components/shared/MDXRenderer";
 import { NewsletterForm } from "@/components/layout/NewsletterForm";
 
 export const revalidate = 3600; // Revalidate every hour
@@ -10,7 +10,7 @@ export default async function Home() {
     return (
         <div className="space-y-12">
             <header className="space-y-6">
-                <MarkdownRenderer content={settings.homeIntroContent} />
+                <MDXRenderer content={settings.homeIntroContent} />
 
                 <div className="pt-4">
                     <NewsletterForm

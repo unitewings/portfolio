@@ -1,6 +1,6 @@
 import { notFound } from "next/navigation";
 import { getPageBySlug, getSiteSettings, getPosts } from "@/lib/data";
-import { MarkdownRenderer } from "@/components/shared/MarkdownRenderer";
+import { MDXRenderer } from "@/components/shared/MDXRenderer";
 import { Metadata } from "next";
 import { PagePasswordProtection } from "@/components/blog/PagePasswordProtection";
 import { PostCard } from "@/components/feed/PostCard";
@@ -72,7 +72,7 @@ export default async function DynamicPage({ params }: PageProps) {
             </header>
 
             <div className="prose dark:prose-invert max-w-none">
-                <MarkdownRenderer content={page.content} />
+                <MDXRenderer content={page.content} />
             </div>
 
             {/* Render Curated Posts if any */}
