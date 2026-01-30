@@ -2,7 +2,7 @@ import { MetadataRoute } from 'next';
 import { getPages, getPosts } from '@/lib/data';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://vibewithswarn.com'; // Fallback to assumed domain
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://swarn.unitewings.com'; // Fallback to assumed domain
 
     // 1. Get all pages (includes system pages like Home, Resume, Contact)
     const pages = await getPages();

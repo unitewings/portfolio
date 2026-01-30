@@ -11,6 +11,7 @@ const inter = Inter({ subsets: ['latin'], variable: '--font-inter' });
 export async function generateMetadata(): Promise<Metadata> {
   const settings = await getSiteSettings();
   return {
+    metadataBase: new URL('https://swarn.unitewings.com'),
     title: settings.globalTitle,
     description: settings.globalDescription,
     icons: {
