@@ -1,15 +1,21 @@
+import { NextResponse } from 'next/server';
+
+export async function GET() {
+    const firebaseConfig = {
+        apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+        authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+        projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+        storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+        messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+        appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
+        measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
+    };
+
+    const serviceWorkerContent = `
 importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-app-compat.js');
 importScripts('https://www.gstatic.com/firebasejs/9.0.0/firebase-messaging-compat.js');
 
-const firebaseConfig = {
-    apiKey: "AIzaSyCQmTrkrxIWGUSnjowhzSvSgvnSJbYWW9A",
-    authDomain: "portfolio-ce6d7.firebaseapp.com",
-    projectId: "portfolio-ce6d7",
-    storageBucket: "portfolio-ce6d7.firebasestorage.app",
-    messagingSenderId: "343276605699",
-    appId: "1:343276605699:web:6d395e8a695d5746d3d936",
-    measurementId: "G-LVKZNX00T9"
-};
+const firebaseConfig = ${JSON.stringify(firebaseConfig, null, 4)};
 
 firebase.initializeApp(firebaseConfig);
 
@@ -55,3 +61,13 @@ self.addEventListener('notificationclick', function (event) {
         })
     );
 });
+`;
+
+    return new NextResponse(serviceWorkerContent, {
+        headers: {
+            'Content-Type': 'application/javascript',
+            'Service-Worker-Allowed': '/',
+            'Cache-Control': 'public, max-age=0, must-revalidate'
+        }
+    });
+}
