@@ -22,7 +22,6 @@ const nextConfig: NextConfig = {
     serverActions: {
       bodySizeLimit: '50mb',
     },
-    optimizeCss: true, // Attempt to inline critical CSS
   },
   compress: true,
   eslint: {

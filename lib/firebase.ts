@@ -37,11 +37,7 @@ const db = initializeFirestore(app, {
     experimentalForceLongPolling: true,
 });
 
-let authInstance: ReturnType<typeof getAuth>;
-export const getFirebaseAuth = () => {
-    if (!authInstance) authInstance = getAuth(app);
-    return authInstance;
-};
+const auth = getAuth(app);
 
 import type { Messaging } from "firebase/messaging";
 let messaging: Messaging | undefined;
@@ -53,4 +49,4 @@ if (typeof window !== "undefined") {
 
 const storage = getStorage(app);
 
-export { app, analytics, db, messaging, storage };
+export { app, analytics, db, auth, messaging, storage };

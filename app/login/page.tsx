@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { getFirebaseAuth } from "@/lib/firebase";
+import { auth } from "@/lib/firebase";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/shared/ui/button";
 import { toast } from "sonner";
@@ -20,7 +20,7 @@ export default function LoginPage() {
         setIsLoading(true);
 
         try {
-            const userCredential = await signInWithEmailAndPassword(getFirebaseAuth(), email, password);
+            const userCredential = await signInWithEmailAndPassword(auth, email, password);
             const token = await userCredential.user.getIdToken();
 
             // Set cookie via Server Action
