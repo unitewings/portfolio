@@ -23,7 +23,7 @@ export default async function ContactPage() {
                                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
                                 <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
                             </span>
-                            Available for new conversations
+                            Available for new conversations, collaborations, and opportunities.
                         </div>
 
                         <h1 className="font-display text-5xl md:text-7xl font-extrabold tracking-tight mb-6 leading-tight text-gray-900 dark:text-white">
@@ -31,7 +31,7 @@ export default async function ContactPage() {
                         </h1>
 
                         <p className="text-xl md:text-2xl text-muted-light dark:text-muted-dark mb-0 max-w-xl leading-relaxed">
-                            Ready to revolutionize your HR strategy with AI? Let&apos;s build the future of work together through innovation and data-driven insights.
+                            Helping students and freshers get job-ready with GenAI and startup insights. Let's connect and grow together.
                         </p>
                     </div>
 
