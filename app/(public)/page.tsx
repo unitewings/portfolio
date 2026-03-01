@@ -85,7 +85,7 @@ export default async function Home() {
                 </div>
 
                 <Link href="/resources" className="project-tile tile relative rounded-3xl overflow-hidden shadow-sm group block">
-                    <img alt="From the desk of Swarn" className="absolute inset-0 w-full h-full object-cover transition duration-700 group-hover:scale-105" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDhoIUFXGCLCJ2zIloJ4xnI8tf29Bqyc-NJUr3UyUqVncL3FMv0zh8HtPGtz0xJN2_d0zea5DwkKl0oZPK4BDkUUslVTov6nonVHMT1y4220qcRj4CmEPCh_87KqtTCMkyhLOEaBFGMNX8ZuLZxsXhdJFN2a3VbOIisqssVBZgCWGy9CZYQPW7lT13ThvDSMxBvV5gK5qJyvC6xLumXv-YzczQsVT18gAM8hx2YxNR1Z2GvNSdmeNE-rIsDyIWlflt-ZcSyWaIgstyh" />
+                    <img alt="From the desk of Swarn" className="absolute inset-0 w-full h-full object-cover transition duration-700 group-hover:scale-105" src="https://res.cloudinary.com/dq8rnfy2w/image/upload/v1772377999/From_the_desk_of_Swarn_zoidxi.png" />
                     <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent"></div>
                     <div className="absolute bottom-0 left-0 right-0 p-10">
                         <span className="text-sm font-bold text-primary tracking-widest uppercase mb-3 block">Resources</span>

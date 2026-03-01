@@ -6,7 +6,8 @@ import { useEffect, useState } from "react";
 import { usePathname } from "next/navigation";
 
 import SharedFooter from "@/components/shared/SharedFooter";
-import { FeedbackWidget } from "@/components/shared/FeedbackWidget";
+import dynamic from "next/dynamic";
+const FeedbackWidget = dynamic(() => import("@/components/shared/FeedbackWidget").then(mod => mod.FeedbackWidget), { ssr: false });
 import { MobileMenu } from "@/components/layout/MobileMenu";
 
 export default function PublicLayout({

@@ -15,7 +15,7 @@ export const metadata: Metadata = {
     template: '%s | AI Growth & Journey',
     default: "Swarn Shauryam | AI Growth & Journey",
   },
-  description: "Personal portfolio and blog.",
+  description: "Welcome to my personal portfolio and blog. Explore my professional projects, technical skills, and detailed articles on software development and technology. Stay updated with my latest work and career journey here.",
   icons: {
     icon: '/Images/favicon.ico',
   },
@@ -24,8 +24,10 @@ export const metadata: Metadata = {
 
 
 import { HeadScripts } from '@/components/shared/HeadScripts';
+import { MaterialIcons } from '@/components/shared/MaterialIcons';
 
-import FCMClient from '@/components/FCMClient';
+import dynamic from 'next/dynamic';
+const FCMClient = dynamic(() => import('@/components/FCMClient'));
 
 export default async function RootLayout({
   children,
@@ -37,8 +39,7 @@ export default async function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" />
-        <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet" />
+        <MaterialIcons />
         {settings.headScripts && <HeadScripts content={settings.headScripts} />}
       </head>
       <body className={`${poppins.variable} bg-background-light dark:bg-background-dark font-body min-h-screen text-text-light dark:text-text-dark selection:bg-primary selection:text-white transition-colors duration-300`}>
