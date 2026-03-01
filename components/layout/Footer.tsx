@@ -6,7 +6,7 @@ export async function Footer() {
     const settings = await getSiteSettings();
     const currentYear = new Date().getFullYear();
 
-    const iconMap: Record<string, any> = {
+    const iconMap: Record<string, React.ElementType> = {
         linkedin: Linkedin,
         youtube: Youtube,
         github: Github,

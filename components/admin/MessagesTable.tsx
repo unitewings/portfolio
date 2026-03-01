@@ -2,8 +2,6 @@
 
 import { ContactSubmission } from "@/types";
 import { useState } from "react";
-import { Button } from "@/components/shared/ui/button";
-import { Trash2, Download, Mail, CheckSquare, Square } from "lucide-react";
 import { toast } from "sonner";
 import { deleteMessagesAction } from "@/lib/actions";
 
@@ -11,36 +9,33 @@ interface MessagesTableProps {
     data: ContactSubmission[];
 }
 
+function timeAgo(dateStr: string) {
+    const now = new Date();
+    const date = new Date(dateStr);
+    const diffMs = now.getTime() - date.getTime();
+    const diffMins = Math.floor(diffMs / 60000);
+    if (diffMins < 60) return `${diffMins}M AGO`;
+    const diffHours = Math.floor(diffMins / 60);
+    if (diffHours < 24) return `${diffHours}H AGO`;
+    const diffDays = Math.floor(diffHours / 24);
+    if (diffDays === 1) return "YESTERDAY";
+    return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }).toUpperCase();
+}
+
 export function MessagesTable({ data }: MessagesTableProps) {
-    const [selectedIds, setSelectedIds] = useState<string[]>([]);
+    const [selectedId, setSelectedId] = useState<string | null>(data.length > 0 ? data[0].id : null);
     const [isDeleting, setIsDeleting] = useState(false);
 
-    const toggleSelectAll = () => {
-        if (selectedIds.length === data.length) {
-            setSelectedIds([]);
-        } else {
-            setSelectedIds(data.map(d => d.id));
-        }
-    };
+    const selectedMessage = data.find(m => m.id === selectedId);
 
-    const toggleSelect = (id: string) => {
-        if (selectedIds.includes(id)) {
-            setSelectedIds(selectedIds.filter(sid => sid !== id));
-        } else {
-            setSelectedIds([...selectedIds, id]);
-        }
-    };
-
-    const handleDelete = async () => {
-        if (!confirm(`Are you sure you want to delete ${selectedIds.length} messages?`)) return;
-
+    const handleDelete = async (id: string) => {
+        if (!confirm("Delete this message?")) return;
         setIsDeleting(true);
-        const result = await deleteMessagesAction(selectedIds);
+        const result = await deleteMessagesAction([id]);
         setIsDeleting(false);
-
         if (result.success) {
             toast.success(result.message);
-            setSelectedIds([]);
+            if (selectedId === id) setSelectedId(null);
         } else {
             toast.error(result.message);
         }
@@ -48,18 +43,15 @@ export function MessagesTable({ data }: MessagesTableProps) {
 
     const handleExport = () => {
         const csvHeader = "Date,Name,Email,Phone,Category,Message\n";
-        const csvBody = data
-            .filter(d => selectedIds.includes(d.id))
-            .map(d => {
-                const date = new Date(d.submittedAt).toLocaleDateString();
-                const name = `"${d.firstName} ${d.lastName}"`;
-                const email = d.email;
-                const phone = d.phone ? `"${d.phone}"` : "";
-                const category = d.category || "";
-                const message = `"${d.message.replace(/"/g, '""')}"`; // Escape quotes
-                return `${date},${name},${email},${phone},${category},${message}`;
-            })
-            .join("\n");
+        const csvBody = data.map(d => {
+            const date = new Date(d.submittedAt).toLocaleDateString();
+            const name = `"${d.firstName} ${d.lastName}"`;
+            const email = d.email;
+            const phone = d.phone ? `"${d.phone}"` : "";
+            const category = d.category || "";
+            const message = `"${d.message.replace(/"/g, '""')}"`;
+            return `${date},${name},${email},${phone},${category},${message}`;
+        }).join("\n");
 
         const blob = new Blob([csvHeader + csvBody], { type: "text/csv" });
         const url = window.URL.createObjectURL(blob);
@@ -72,90 +64,121 @@ export function MessagesTable({ data }: MessagesTableProps) {
     };
 
     return (
-        <div className="space-y-4">
-            {selectedIds.length > 0 && (
-                <div className="flex items-center gap-2 p-2 bg-muted/50 rounded-md animate-in fade-in slide-in-from-top-2">
-                    <span className="text-sm font-medium px-2">{selectedIds.length} selected</span>
-                    <Button variant="destructive" size="sm" onClick={handleDelete} disabled={isDeleting}>
-                        <Trash2 size={14} className="mr-2" />
-                        Delete
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={handleExport}>
-                        <Download size={14} className="mr-2" />
-                        Export CSV
-                    </Button>
+        <>
+            {/* Messages List */}
+            <div className="messages-list-tile tile bg-surface-light dark:bg-surface-dark p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col">
+                <div className="flex items-center justify-between mb-6">
+                    <h3 className="font-display text-xl font-bold text-gray-900 dark:text-white">Recent Inquiries</h3>
+                    <button onClick={handleExport} className="text-xs text-muted-light hover:text-primary transition-colors font-medium flex items-center gap-1">
+                        <span className="material-symbols-outlined text-sm">tune</span>
+                        All Messages
+                    </button>
                 </div>
-            )}
 
-            <div className="rounded-md border bg-card">
-                <div className="relative w-full overflow-auto">
-                    <table className="w-full caption-bottom text-sm text-left">
-                        <thead className="[&_tr]:border-b">
-                            <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-                                <th className="h-12 px-4 align-middle w-[50px]">
-                                    <button onClick={toggleSelectAll} className="flex items-center justify-center opacity-70 hover:opacity-100">
-                                        {selectedIds.length === data.length && data.length > 0 ? <CheckSquare size={16} /> : <Square size={16} />}
-                                    </button>
-                                </th>
-                                <th className="h-12 px-4 align-middle font-medium text-muted-foreground">Date</th>
-                                <th className="h-12 px-4 align-middle font-medium text-muted-foreground">Name</th>
-                                <th className="h-12 px-4 align-middle font-medium text-muted-foreground">Email</th>
-                                <th className="h-12 px-4 align-middle font-medium text-muted-foreground">Category</th>
-                                <th className="h-12 px-4 align-middle font-medium text-muted-foreground">Message</th>
-                            </tr>
-                        </thead>
-                        <tbody className="[&_tr:last-child]:border-0">
-                            {data.length > 0 ? (
-                                data.map((msg) => (
-                                    <tr key={msg.id} className={`border-b transition-colors hover:bg-muted/50 group ${selectedIds.includes(msg.id) ? "bg-muted/50" : ""}`}>
-                                        <td className="p-4 align-middle">
-                                            <button onClick={() => toggleSelect(msg.id)} className="flex items-center justify-center opacity-70 hover:opacity-100">
-                                                {selectedIds.includes(msg.id) ? <CheckSquare size={16} /> : <Square size={16} />}
-                                            </button>
-                                        </td>
-                                        <td className="p-4 align-middle text-muted-foreground whitespace-nowrap">
-                                            {new Date(msg.submittedAt).toLocaleDateString()}
-                                            <div className="text-xs">{new Date(msg.submittedAt).toLocaleTimeString()}</div>
-                                        </td>
-                                        <td className="p-4 align-middle font-medium">
-                                            {msg.firstName} {msg.lastName}
-                                            {msg.phone && (
-                                                <div className="text-xs text-muted-foreground">{msg.phone}</div>
-                                            )}
-                                        </td>
-                                        <td className="p-4 align-middle">
-                                            <a href={`mailto:${msg.email}`} className="hover:underline flex items-center gap-1">
-                                                <Mail size={12} />
-                                                {msg.email}
-                                            </a>
-                                        </td>
-                                        <td className="p-4 align-middle">
-                                            {msg.category ? (
-                                                <span className="inline-flex items-center rounded-md border px-2.5 py-0.5 text-xs font-semibold transition-colors bg-secondary text-secondary-foreground">
-                                                    {msg.category}
-                                                </span>
-                                            ) : (
-                                                <span className="text-muted-foreground">-</span>
-                                            )}
-                                        </td>
-                                        <td className="p-4 align-middle max-w-md">
-                                            <p className="line-clamp-2 group-hover:line-clamp-none transition-all duration-200">
-                                                {msg.message}
-                                            </p>
-                                        </td>
-                                    </tr>
-                                ))
-                            ) : (
-                                <tr>
-                                    <td colSpan={6} className="p-8 text-center text-muted-foreground">
-                                        No messages yet.
-                                    </td>
-                                </tr>
-                            )}
-                        </tbody>
-                    </table>
+                <div className="space-y-1 overflow-y-auto flex-1">
+                    {data.length > 0 ? data.map((msg) => (
+                        <button
+                            key={msg.id}
+                            onClick={() => setSelectedId(msg.id)}
+                            className={`w-full text-left p-4 rounded-2xl transition-all ${selectedId === msg.id
+                                    ? "bg-orange-50 dark:bg-orange-900/10 border-l-4 border-primary"
+                                    : "hover:bg-gray-50 dark:hover:bg-gray-800/30 border-l-4 border-transparent"
+                                }`}
+                        >
+                            <div className="flex justify-between items-start mb-1">
+                                <p className="font-bold text-sm text-gray-900 dark:text-white">{msg.firstName} {msg.lastName}</p>
+                                <span className="text-[10px] text-muted-light dark:text-muted-dark font-medium shrink-0 ml-2">{timeAgo(msg.submittedAt)}</span>
+                            </div>
+                            <p className="text-primary text-xs font-semibold mb-1">{msg.category || "General Inquiry"}</p>
+                            <p className="text-xs text-muted-light dark:text-muted-dark line-clamp-2">{msg.message}</p>
+                        </button>
+                    )) : (
+                        <div className="text-center text-muted-light dark:text-muted-dark py-12">No messages yet.</div>
+                    )}
                 </div>
             </div>
-        </div>
+
+            {/* Message Detail */}
+            <div className="messages-detail-tile tile bg-surface-light dark:bg-surface-dark p-6 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-700 flex flex-col">
+                {selectedMessage ? (
+                    <>
+                        <div className="flex items-center justify-between mb-4 pb-4 border-b border-gray-100 dark:border-gray-800">
+                            <div>
+                                <p className="font-bold text-lg text-gray-900 dark:text-white">{selectedMessage.firstName} {selectedMessage.lastName}</p>
+                                <p className="text-xs text-muted-light dark:text-muted-dark">{selectedMessage.email}</p>
+                            </div>
+                            <div className="flex items-center gap-2">
+                                <button className="text-gray-400 hover:text-amber-500 transition-colors p-2" title="Star">
+                                    <span className="material-symbols-outlined text-lg">star</span>
+                                </button>
+                                <button onClick={() => handleDelete(selectedMessage.id)} disabled={isDeleting} className="text-gray-400 hover:text-red-500 transition-colors p-2" title="Delete">
+                                    <span className="material-symbols-outlined text-lg">delete</span>
+                                </button>
+                                <button className="text-gray-400 hover:text-gray-600 transition-colors p-2" title="More">
+                                    <span className="material-symbols-outlined text-lg">more_vert</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div className="flex-1 overflow-y-auto">
+                            <div className="flex items-center justify-between mb-6">
+                                <h2 className="font-display text-2xl font-bold text-gray-900 dark:text-white">
+                                    {selectedMessage.category || "General Inquiry"}
+                                </h2>
+                                <span className="text-xs bg-gray-100 dark:bg-gray-800 px-3 py-1 rounded-full text-muted-light dark:text-muted-dark">
+                                    {new Date(selectedMessage.submittedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })}
+                                </span>
+                            </div>
+
+                            <div className="text-sm text-gray-700 dark:text-gray-300 leading-relaxed whitespace-pre-wrap mb-8">
+                                {selectedMessage.message}
+                            </div>
+
+                            {selectedMessage.phone && (
+                                <div className="text-xs text-muted-light dark:text-muted-dark mb-8">
+                                    📱 Phone: {selectedMessage.phone}
+                                </div>
+                            )}
+
+                            {/* Quick Reply Buttons */}
+                            <div className="flex flex-wrap gap-2 mb-6">
+                                <button className="px-4 py-2 rounded-full border border-gray-200 dark:border-gray-700 text-xs font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                                    &ldquo;Sounds great, let&apos;s chat!&rdquo;
+                                </button>
+                                <button className="px-4 py-2 rounded-full border border-gray-200 dark:border-gray-700 text-xs font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                                    &ldquo;Send portfolio link&rdquo;
+                                </button>
+                                <button className="px-4 py-2 rounded-full border border-gray-200 dark:border-gray-700 text-xs font-medium hover:bg-gray-50 dark:hover:bg-gray-800 transition-colors">
+                                    &ldquo;Not available currently&rdquo;
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Reply Input */}
+                        <div className="pt-4 border-t border-gray-100 dark:border-gray-800">
+                            <div className="flex items-center gap-3">
+                                <input
+                                    className="flex-1 pl-4 pr-4 py-3 rounded-2xl border border-gray-100 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 text-sm focus:ring-primary focus:border-primary transition-all"
+                                    placeholder="Type your reply here..."
+                                    type="text"
+                                    readOnly
+                                />
+                                <button className="flex items-center gap-2 bg-primary hover:bg-orange-700 text-white font-bold py-3 px-5 rounded-2xl transition-all text-sm shadow-lg shadow-orange-500/20">
+                                    Send Reply
+                                    <span className="material-symbols-outlined text-sm">send</span>
+                                </button>
+                            </div>
+                        </div>
+                    </>
+                ) : (
+                    <div className="flex-1 flex items-center justify-center text-muted-light dark:text-muted-dark">
+                        <div className="text-center">
+                            <span className="material-symbols-outlined text-5xl mb-4 block opacity-40">inbox</span>
+                            <p className="font-medium">Select a message to read</p>
+                        </div>
+                    </div>
+                )}
+            </div>
+        </>
     );
 }

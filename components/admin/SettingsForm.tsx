@@ -47,7 +47,7 @@ export function SettingsForm({ initialData }: { initialData: SiteSettings }) {
                                 value={formData.profileName || ""}
                                 onChange={handleChange}
                                 label="Profile Name"
-                                placeholder="Jeff Su"
+                                placeholder="Swarn Shauryam"
                             />
                         </div>
                         <div className="space-y-2">
@@ -56,7 +56,7 @@ export function SettingsForm({ initialData }: { initialData: SiteSettings }) {
                                 value={formData.profileLabel || ""}
                                 onChange={handleChange}
                                 label="Profile Label"
-                                placeholder="Productivity Expert"
+                                placeholder="AI, Growth & Journey"
                             />
                         </div>
 
@@ -219,6 +219,77 @@ export function SettingsForm({ initialData }: { initialData: SiteSettings }) {
 
             <Card>
                 <CardHeader>
+                    <CardTitle>Community Submission Categories</CardTitle>
+                </CardHeader>
+                <CardContent className="space-y-4">
+                    <p className="text-xs text-muted-foreground mb-4">
+                        Manage the categories available for users when they submit articles, case studies, or guides.
+                    </p>
+                    <div className="flex flex-wrap gap-2 mb-4">
+                        {(formData.submissionCategories || []).map((category, idx) => (
+                            <div key={idx} className="flex items-center gap-2 bg-secondary/50 px-3 py-1.5 rounded-full border border-border">
+                                <span className="text-sm font-medium">{category}</span>
+                                <button
+                                    type="button"
+                                    onClick={() => {
+                                        const newCategories = [...(formData.submissionCategories || [])];
+                                        newCategories.splice(idx, 1);
+                                        setFormData(prev => ({ ...prev, submissionCategories: newCategories }));
+                                    }}
+                                    className="text-muted-foreground hover:text-destructive flex items-center justify-center p-0.5 rounded-full hover:bg-destructive/10"
+                                >
+                                    <Trash2 size={14} />
+                                </button>
+                            </div>
+                        ))}
+                    </div>
+
+                    <div className="flex gap-2">
+                        <FloatingLabelInput
+                            label="New Category"
+                            placeholder="e.g., Leadership"
+                            id="newCategoryInput"
+                            onKeyDown={(e) => {
+                                if (e.key === 'Enter') {
+                                    e.preventDefault();
+                                    const input = e.currentTarget;
+                                    const value = input.value.trim();
+                                    if (value && !(formData.submissionCategories || []).includes(value)) {
+                                        setFormData(prev => ({
+                                            ...prev,
+                                            submissionCategories: [...(prev.submissionCategories || []), value]
+                                        }));
+                                        input.value = '';
+                                    }
+                                }
+                            }}
+                        />
+                        <Button
+                            type="button"
+                            variant="secondary"
+                            onClick={(e) => {
+                                const input = document.getElementById('newCategoryInput') as HTMLInputElement;
+                                if (input) {
+                                    const value = input.value.trim();
+                                    if (value && !(formData.submissionCategories || []).includes(value)) {
+                                        setFormData(prev => ({
+                                            ...prev,
+                                            submissionCategories: [...(prev.submissionCategories || []), value]
+                                        }));
+                                        input.value = '';
+                                    }
+                                }
+                            }}
+                        >
+                            <Plus size={16} className="mr-2" />
+                            Add
+                        </Button>
+                    </div>
+                </CardContent>
+            </Card>
+
+            <Card>
+                <CardHeader>
                     <CardTitle>Contact Page</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
@@ -242,7 +313,7 @@ export function SettingsForm({ initialData }: { initialData: SiteSettings }) {
                                 value={formData.contactEmail || ""}
                                 onChange={handleChange}
                                 label="Contact Email (Display)"
-                                placeholder="hello@example.com"
+                                placeholder="swarn@unitewings.com"
                             />
                         </div>
                     </div>

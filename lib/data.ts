@@ -1,6 +1,6 @@
 import { db } from "@/lib/firebase";
-import { doc, getDoc, setDoc, collection, getDocs, deleteDoc } from "firebase/firestore";
-import { ResumeData, BlogPost, SiteSettings, Page, Subscriber, ContactSubmission, MDXSettings } from "@/types";
+import { doc, getDoc, setDoc, collection, getDocs, deleteDoc, updateDoc, increment } from "firebase/firestore";
+import { ResumeData, BlogPost, SiteSettings, Page, Subscriber, ContactSubmission, MDXSettings, CommunitySubmission, SiteReactions } from "@/types";
 // import fs from 'fs/promises'; // REMOVED
 // import path from 'path'; // REMOVED
 import { getLocalResume, getLocalPosts } from "@/lib/seed";
@@ -121,14 +121,12 @@ export async function getPages(): Promise<Page[]> {
         { id: "resources", title: "Resources", slug: "resources", path: "/resources", inSidebar: true, order: 3, isSystem: true, content: "# Resources\n\nExplore our latest articles and resources." }
     ];
 
-    let hasChanges = false;
     for (const sysPage of systemPages) {
         if (!pages.find(p => p.id === sysPage.id)) {
             console.log(`Seeding system page: ${sysPage.title}`);
             const docRef = doc(db, "pages", sysPage.id);
             await setDoc(docRef, sysPage);
             pages.push(sysPage as Page); // Add to local list
-            hasChanges = true; // Mark change (though we added to local, sorting happens next)
         }
     }
 
@@ -164,30 +162,32 @@ export async function getSiteSettings(): Promise<SiteSettings> {
 
         // Return defaults if not found
         return {
-            globalTitle: "Jeff Su | Productivity & Gear",
+            globalTitle: "Swarn Shauryam | Productivity & Gear",
             globalDescription: "Digital Knowledge Hub for Productivity, Gear, and Life.",
             homeIntroContent: "## Welcome\n\nI help people stay **productive** and find the best **gear** for their setup.",
             socialLinks: [],
-            profileName: "Jeff Su",
+            submissionCategories: ["Blog", "Case Study", "Guide"],
+            profileName: "Swarn Shauryam",
             profileLabel: "Productivity Expert",
             newsletterTitle: "Newsletter",
             newsletterDescription: "Join 50k+ subscribers. Practical productivity tips delivered to your inbox.",
             contactIntro: "## Get in Touch\nI'd love to hear from you. Fill out the form below.",
-            contactEmail: "hello@example.com",
+            contactEmail: "swarn@unitewings.com",
         };
     } catch (error) {
         console.warn("Firestore error (settings), using defaults:", error);
         return {
-            globalTitle: "Jeff Su | Productivity & Gear",
+            globalTitle: "Swarn Shauryam | Productivity & Gear",
             globalDescription: "Digital Knowledge Hub for Productivity, Gear, and Life.",
             homeIntroContent: "## Welcome\n\nI help people stay **productive** and find the best **gear** for their setup.",
             socialLinks: [],
-            profileName: "Jeff Su",
+            submissionCategories: ["Blog", "Case Study", "Guide"],
+            profileName: "Swarn Shauryam",
             profileLabel: "Productivity Expert",
             newsletterTitle: "Newsletter",
             newsletterDescription: "Join 50k+ subscribers. Practical productivity tips delivered to your inbox.",
             contactIntro: "## Get in Touch\nI'd love to hear from you. Fill out the form below.",
-            contactEmail: "hello@example.com",
+            contactEmail: "swarn@unitewings.com",
         };
     }
 }
@@ -283,4 +283,94 @@ export async function saveMDXSettings(settings: MDXSettings): Promise<void> {
         ...settings,
         updatedAt: new Date().toISOString(),
     });
+}
+
+// --- Community Submissions Operations ---
+
+export async function saveCommunitySubmission(submission: CommunitySubmission): Promise<void> {
+    const docRef = doc(db, "submissions", submission.id);
+    await setDoc(docRef, submission);
+}
+
+export async function getCommunitySubmissions(): Promise<CommunitySubmission[]> {
+    const colRef = collection(db, "submissions");
+    const snapshot = await getDocs(colRef);
+    if (!snapshot.empty) {
+        const submissions = snapshot.docs.map(doc => doc.data() as CommunitySubmission);
+        return submissions.sort((a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime());
+    }
+    return [];
+}
+
+export async function getCommunitySubmissionById(id: string): Promise<CommunitySubmission | null> {
+    const docRef = doc(db, "submissions", id);
+    const docSnap = await getDoc(docRef);
+    if (docSnap.exists()) {
+        return docSnap.data() as CommunitySubmission;
+    }
+    return null;
+}
+
+export async function updateCommunitySubmission(id: string, updates: Partial<CommunitySubmission>): Promise<void> {
+    const docRef = doc(db, "submissions", id);
+    await updateDoc(docRef, updates);
+}
+
+export async function deleteCommunitySubmission(id: string): Promise<void> {
+    const docRef = doc(db, "submissions", id);
+    await deleteDoc(docRef);
+}
+
+// --- Site Reactions Operations ---
+
+export async function getReactions(): Promise<SiteReactions> {
+    try {
+        const docRef = doc(db, "portfolio", "reactions");
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            return docSnap.data() as SiteReactions;
+        }
+
+        // Return defaults if not found
+        return {
+            claps: 0,
+            highFives: 0,
+        };
+    } catch (error) {
+        console.warn("Firestore error (reactions), using defaults:", error);
+        return {
+            claps: 0,
+            highFives: 0,
+        };
+    }
+}
+
+export async function getDailyReactions(): Promise<SiteReactions> {
+    const today = new Date().toISOString().split('T')[0];
+    try {
+        const docRef = doc(db, "portfolio", `reactions_daily_${today}`);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+            return docSnap.data() as SiteReactions;
+        }
+
+        return { claps: 0, highFives: 0 };
+    } catch (error) {
+        console.warn("Firestore error (daily reactions), using defaults:", error);
+        return { claps: 0, highFives: 0 };
+    }
+}
+
+export async function incrementReaction(type: 'claps' | 'highFives'): Promise<void> {
+    const today = new Date().toISOString().split('T')[0];
+    const globalRef = doc(db, "portfolio", "reactions");
+    const dailyRef = doc(db, "portfolio", `reactions_daily_${today}`);
+
+    // Use Promise.all to increment both globally and daily concurrently
+    await Promise.all([
+        setDoc(globalRef, { [type]: increment(1) }, { merge: true }),
+        setDoc(dailyRef, { [type]: increment(1) }, { merge: true })
+    ]);
 }

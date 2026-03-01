@@ -246,34 +246,11 @@ export function PageEditor({ initialPage, allPosts = [] }: { initialPage?: Page;
                                         className="h-4 w-4"
                                     />
                                     <label htmlFor="isProtected" className="text-sm font-medium leading-none">
-                                        Password Protection
+                                        Email Required
                                     </label>
                                 </div>
 
-                                {formData.isProtected && (
-                                    <div className="space-y-4 animate-in fade-in slide-in-from-top-2 pt-2">
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-medium">Password</label>
-                                            <input
-                                                name="password"
-                                                value={formData.password || ""}
-                                                onChange={handleChange}
-                                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                                                placeholder="Secure password"
-                                            />
-                                        </div>
-                                        <div className="space-y-2">
-                                            <label className="text-sm font-medium">Hint Link</label>
-                                            <input
-                                                name="passwordHintLink"
-                                                value={formData.passwordHintLink || ""}
-                                                onChange={handleChange}
-                                                className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm"
-                                                placeholder="https://..."
-                                            />
-                                        </div>
-                                    </div>
-                                )}
+
                             </CardContent>
                         </Card>
                     )}

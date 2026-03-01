@@ -2,20 +2,71 @@
 
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
-import { saveResume, savePost, getPosts, deletePost as deletePostData, saveSiteSettings, subscribeToNewsletter, savePage, deletePage as deletePageData, saveContactSubmission } from "@/lib/data";
-import { ResumeData, BlogPost, SiteSettings, Page, ContactSubmission } from "@/types";
+import { saveResume, savePost, deletePost as deletePostData, saveSiteSettings, subscribeToNewsletter, savePage, deletePage as deletePageData, saveContactSubmission, saveCommunitySubmission as saveDataCommunitySubmission, updateCommunitySubmission as updateDataCommunitySubmission } from "@/lib/data";
+import { ResumeData, BlogPost, SiteSettings, Page, ContactSubmission, CommunitySubmission } from "@/types";
 import { z } from "zod";
 
-// --- Schemas (Basic validation) ---
-const PostSchema = z.object({
-    title: z.string().min(1),
-    slug: z.string().min(1),
-    excerpt: z.string(),
-    content: z.string(),
-    status: z.enum(["draft", "published"]),
-});
-
 // --- Actions ---
+
+export async function uploadFile(formData: FormData) {
+    const file = formData.get("file") as File | Blob;
+    if (!file || typeof file.arrayBuffer !== 'function') {
+        return { success: false, message: "No valid file provided" };
+    }
+
+    try {
+        const cloudinaryUrl = process.env.CLOUDINARY_URL;
+        if (!cloudinaryUrl) {
+            throw new Error("Missing Cloudinary configuration");
+        }
+
+        // Parse cloudinary://key:secret@cloud_name
+        const match = cloudinaryUrl.match(/cloudinary:\/\/([^:]+):([^@]+)@(.+)/);
+        if (!match) {
+            throw new Error("Invalid Cloudinary URL format");
+        }
+
+        const [, apiKey, apiSecret, cloudName] = match;
+
+        // Convert the File to a Base64 string for the Cloudinary API
+        const arrayBuffer = await file.arrayBuffer();
+        const buffer = Buffer.from(arrayBuffer);
+        const base64Data = buffer.toString('base64');
+        const fileDataUri = `data:${file.type};base64,${base64Data}`;
+
+        const timestamp = Math.round(new Date().getTime() / 1000);
+
+        // Required imports for creating the signature
+        const crypto = await import("crypto");
+        const signatureStr = `timestamp=${timestamp}${apiSecret}`;
+        const signature = crypto.createHash("sha1").update(signatureStr).digest("hex");
+
+        const submitData = new FormData();
+        submitData.append("file", fileDataUri);
+        submitData.append("api_key", apiKey);
+        submitData.append("timestamp", timestamp.toString());
+        submitData.append("signature", signature);
+        // Optional: specify a folder
+        // submitData.append("folder", "portfolio_uploads");
+
+        const uploadRes = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/auto/upload`, {
+            method: "POST",
+            body: submitData,
+        });
+
+        if (!uploadRes.ok) {
+            const errorData = await uploadRes.json();
+            console.error("Cloudinary upload failed:", errorData);
+            throw new Error(errorData.error?.message || "Cloudinary upload failed");
+        }
+
+        const result = await uploadRes.json();
+        return { success: true, url: result.secure_url };
+    } catch (error) {
+        console.error("File upload failed:", error);
+        return { success: false, message: "Failed to upload file to Cloudinary" };
+    }
+}
 
 export async function updateResume(formData: FormData) {
     // In a real app, we'd parse the complex formData back into the JSON structure.
@@ -52,8 +103,12 @@ export async function createPost(formData: FormData) {
     const isProtected = formData.get("isProtected") === "on"; // Default false
     const password = formData.get("password") as string;
     const passwordHintLink = formData.get("passwordHintLink") as string;
+    const thumbnailUrl = formData.get("thumbnailUrl") as string;
 
-    const slug = title
+    const type = (formData.get("type") as BlogPost["type"]) || "article";
+
+    const titleStr = title || "untitled";
+    const slug = titleStr
         .toLowerCase()
         .replace(/[^a-z0-9]+/g, "-")
         .replace(/(^-|-$)+/g, "");
@@ -69,7 +124,8 @@ export async function createPost(formData: FormData) {
         status,
         pinned,
 
-        type: "article",
+        type,
+        thumbnailUrl,
         isListed,
         isProtected,
         password,
@@ -95,6 +151,9 @@ export async function updatePost(formData: FormData) {
     const password = formData.get("password") as string;
     const passwordHintLink = formData.get("passwordHintLink") as string;
     const slug = formData.get("slug") as string;
+    const thumbnailUrl = formData.get("thumbnailUrl") as string;
+
+    const type = (formData.get("type") as BlogPost["type"]) || "article";
 
     // SEO Fields
     const seoTitle = formData.get("seoTitle") as string;
@@ -110,10 +169,7 @@ export async function updatePost(formData: FormData) {
     // Note: In a real app we might fetch the old post to keep 'date' and other fields not in form.
     // Here we assume form has everything or we just overwrite. 
     // Ideally we should get the existing post first to preserve 'date'.
-
-    const { getPostBySlug, savePost } = await import("@/lib/data");
-    // Using dynamic import or just standard import. standard is fine since we are in actions.ts
-    // But wait, savePost is already imported at top.
+    // savePost is already imported at top.
 
     const date = formData.get("date") as string || new Date().toISOString();
 
@@ -127,7 +183,8 @@ export async function updatePost(formData: FormData) {
         tags: tagsStr ? tagsStr.split(",").map(t => t.trim()) : [],
         status,
         pinned,
-        type: "article",
+        type,
+        thumbnailUrl,
         seoTitle,
         seoDescription,
         canonicalUrl,
@@ -144,8 +201,8 @@ export async function updatePost(formData: FormData) {
     redirect("/admin/posts");
 }
 
-export async function verifyPostPassword(postId: string, password: string) {
-    const { getPosts, getPages } = await import("@/lib/data");
+export async function verifyPostEmailAccess(postId: string, name: string, email: string) {
+    const { getPosts, getPages, subscribeToNewsletter } = await import("@/lib/data");
     const posts = await getPosts();
     const post = posts.find(p => p.id === postId);
 
@@ -153,15 +210,32 @@ export async function verifyPostPassword(postId: string, password: string) {
         return { success: false, message: "Post not found" };
     }
 
+    if (!name || !email) {
+        return { success: false, message: "Name and Email are required" };
+    }
+
+    try {
+        await subscribeToNewsletter(email, name);
+    } catch (e) {
+        console.error("Failed to subscribe user", e);
+    }
+
     const { cookies } = await import("next/headers");
     const cookieStore = await cookies();
 
     // 1. Check direct Post Password
-    if (post.isProtected && post.password === password) {
+    if (post.isProtected) {
         cookieStore.set(`access_granted_${postId}`, "true", {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            maxAge: 60 * 60 * 24 * 7, // 1 week
+            maxAge: 60 * 60 * 24 * 365, // 1 year
+            path: "/"
+        });
+
+        cookieStore.set(`access_granted_global`, "true", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            maxAge: 60 * 60 * 24 * 365, // 1 year
             path: "/"
         });
         return { success: true };
@@ -173,19 +247,25 @@ export async function verifyPostPassword(postId: string, password: string) {
         page.postIds?.includes(postId) && page.isProtected
     );
 
-    if (parentPage && parentPage.password === password) {
+    if (parentPage) {
         // Unlock the PAGE, which in turn unlocks the post
         cookieStore.set(`access_granted_page_${parentPage.id}`, "true", {
             httpOnly: true,
             secure: process.env.NODE_ENV === "production",
-            maxAge: 60 * 60 * 24 * 7, // 1 week
+            maxAge: 60 * 60 * 24 * 365, // 1 year
+            path: "/"
+        });
+
+        cookieStore.set(`access_granted_global`, "true", {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            maxAge: 60 * 60 * 24 * 365, // 1 year
             path: "/"
         });
         return { success: true };
     }
 
-    // 3. If neither matched
-    return { success: false, message: "Incorrect password" };
+    return { success: true };
 }
 
 export async function deletePost(id: string) {
@@ -294,29 +374,43 @@ export async function submitContactForm(formData: FormData) {
 }
 
 
-export async function verifyPagePassword(pageId: string, password: string) {
-    const { getPages } = await import("@/lib/data");
+export async function verifyPageEmailAccess(pageId: string, name: string, email: string) {
+    const { getPages, subscribeToNewsletter } = await import("@/lib/data");
     const pages = await getPages();
     const page = pages.find(p => p.id === pageId);
 
-    if (!page || !page.password) {
+    if (!page || !page.isProtected) {
         return { success: false, message: "Page not found or not protected" };
     }
 
-    if (page.password === password) {
-        const { cookies } = await import("next/headers");
-        const cookieStore = await cookies();
-        // Set a cookie to remember access to this specific page
-        cookieStore.set(`access_granted_page_${pageId}`, "true", {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            maxAge: 60 * 60 * 24 * 7, // 1 week
-            path: "/"
-        });
-        return { success: true };
+    if (!name || !email) {
+        return { success: false, message: "Name and Email are required" };
     }
 
-    return { success: false, message: "Incorrect password" };
+    try {
+        await subscribeToNewsletter(email, name);
+    } catch (e) {
+        console.error("Failed to subscribe user", e);
+    }
+
+    const { cookies } = await import("next/headers");
+    const cookieStore = await cookies();
+    // Set a cookie to remember access to this specific page
+    cookieStore.set(`access_granted_page_${pageId}`, "true", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 60 * 60 * 24 * 365, // 1 year
+        path: "/"
+    });
+
+    // Set a global cookie to unlock globally
+    cookieStore.set(`access_granted_global`, "true", {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production",
+        maxAge: 60 * 60 * 24 * 365, // 1 year
+        path: "/"
+    });
+    return { success: true };
 }
 
 export async function deleteMessagesAction(ids: string[]) {
@@ -327,7 +421,112 @@ export async function deleteMessagesAction(ids: string[]) {
         return { success: true, message: `Deleted ${ids.length} messages` };
     } catch (error) {
         console.error("Delete messages error", error);
-        return { success: false, message: "Failed to delete messages" };
+        if (error instanceof Error) {
+            return { success: false, message: error.message };
+        }
+        return { success: false, message: "An unknown error occurred" };
+    }
+}
+
+// --- Community Submissions Actions ---
+
+export async function submitCommunityContent(formData: FormData) {
+    try {
+        const authorName = formData.get("authorName") as string;
+        const email = formData.get("email") as string;
+        const category = formData.get("category") as string;
+        const title = formData.get("title") as string;
+        const content = formData.get("content") as string;
+        const attachmentsStr = formData.get("attachments") as string;
+        const file = formData.get("file") as File | null;
+
+        const attachments = attachmentsStr ? JSON.parse(attachmentsStr) : [];
+
+        if (file && typeof file.arrayBuffer === 'function' && file.size > 0) {
+            // Pass the original formData to uploadFile to avoid stripping Next.js File prototype
+            const uploadResult = await uploadFile(formData);
+
+            if (uploadResult.success && uploadResult.url) {
+                attachments.push({
+                    name: file.name,
+                    url: uploadResult.url,
+                    type: file.type || 'document'
+                });
+            } else {
+                return { success: false, message: "Failed to upload document. " + (uploadResult.message || "") };
+            }
+        }
+
+        if (!authorName || !email || !category || !title || !content) {
+            return { success: false, message: "Missing required fields" };
+        }
+
+        const submission: CommunitySubmission = {
+            id: `sub_${Date.now()}_${Math.random().toString(36).substring(2, 9)}`,
+            authorName,
+            email,
+            category,
+            title,
+            content,
+            attachments,
+            status: 'pending',
+            submittedAt: new Date().toISOString(),
+        };
+
+        await saveDataCommunitySubmission(submission);
+
+        // Optional: Send an email notification about the new submission
+        // ...
+
+        return { success: true, message: "Submission received successfully!" };
+    } catch (error) {
+        console.error("Content submission failed:", error);
+        if (error instanceof Error) {
+            return { success: false, message: error.message };
+        }
+        return { success: false, message: "An unknown error occurred" };
+    }
+}
+
+export async function manageCommunitySubmission(id: string, action: 'approve' | 'reject', editorNotes?: string) {
+    try {
+        const updates: Partial<CommunitySubmission> = {
+            status: action === 'approve' ? 'approved' : 'rejected',
+        };
+
+        if (editorNotes !== undefined) {
+            updates.editorNotes = editorNotes;
+        }
+
+        await updateDataCommunitySubmission(id, updates);
+        return { success: true, message: `Submission ${action}d successfully` };
+    } catch (error) {
+        console.error(`Failed to ${action} submission:`, error);
+        return { success: false, message: "Failed to update submission" };
+    }
+}
+
+export async function deleteCommunitySubmissionAction(id: string) {
+    try {
+        const { deleteCommunitySubmission } = await import("@/lib/data");
+        await deleteCommunitySubmission(id);
+        revalidatePath("/admin/submissions");
+        return { success: true, message: "Submission deleted successfully" };
+    } catch (error) {
+        console.error("Failed to delete submission:", error);
+        return { success: false, message: "Failed to delete submission" };
+    }
+}
+
+export async function editCommunitySubmissionAction(id: string, title: string, category: string, content: string, editorNotes?: string) {
+    try {
+        const { updateCommunitySubmission } = await import("@/lib/data");
+        await updateCommunitySubmission(id, { title, category, content, editorNotes });
+        revalidatePath("/admin/submissions");
+        return { success: true, message: "Submission updated successfully" };
+    } catch (error) {
+        console.error("Failed to edit submission:", error);
+        return { success: false, message: "Failed to update submission" };
     }
 }
 
@@ -354,3 +553,19 @@ export async function updateMDXSettings(iframeAllowlist: string) {
         return { success: false, message: "Failed to save MDX settings" };
     }
 }
+
+// --- Reaction Actions ---
+
+export async function addReaction(type: 'claps' | 'highFives') {
+    try {
+        const { incrementReaction } = await import("@/lib/data");
+        await incrementReaction(type);
+        revalidatePath("/");
+        revalidatePath("/admin");
+        return { success: true };
+    } catch (error) {
+        console.error(`Failed to add reaction: ${type}`, error);
+        return { success: false, message: "Failed to save reaction" };
+    }
+}
+

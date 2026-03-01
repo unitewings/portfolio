@@ -18,14 +18,15 @@ export async function POST(req: NextRequest) {
         try {
             adminMessaging = getAdminMessaging();
             adminDb = getAdminDb();
-        } catch (e: any) {
+        } catch (e: unknown) {
             console.error("Firebase Admin Init Error:", e);
-            return NextResponse.json({ error: "Firebase Admin Init Failed: " + e.message }, { status: 500 });
+            const msg = e instanceof Error ? e.message : String(e);
+            return NextResponse.json({ error: "Firebase Admin Init Failed: " + msg }, { status: 500 });
         }
 
         // Base message validation
         // Remove undefined values cleanly
-        const cleanPayload = (obj: any) => {
+        const cleanPayload = (obj: Record<string, unknown>) => {
             return Object.entries(obj)
                 .filter(([_, v]) => v != null && v !== '')
                 .reduce((acc, [k, v]) => ({ ...acc, [k]: v }), {});
@@ -62,9 +63,10 @@ export async function POST(req: NextRequest) {
             let tokensSnapshot;
             try {
                 tokensSnapshot = await adminDb.collection('fcm_tokens').get();
-            } catch (e: any) {
+            } catch (e: unknown) {
                 console.error("Firestore Error:", e);
-                return NextResponse.json({ error: "Firestore Access Failed: " + e.message }, { status: 500 });
+                const msg = e instanceof Error ? e.message : String(e);
+                return NextResponse.json({ error: "Firestore Access Failed: " + msg }, { status: 500 });
             }
 
             if (tokensSnapshot.empty) {
@@ -85,7 +87,8 @@ export async function POST(req: NextRequest) {
                 tokens: uniqueTokens,
             };
 
-            const response = await adminMessaging.sendEachForMulticast(message as any);
+            // Using assertion to avoid complex type checking for Firebase Admin Message types since we're constructing it manually
+            const response = await adminMessaging.sendEachForMulticast(message as Parameters<typeof adminMessaging.sendEachForMulticast>[0]);
 
             // Cleanup invalid tokens with smart logic
             if (response.failureCount > 0) {
@@ -173,11 +176,11 @@ export async function POST(req: NextRequest) {
             token: token,
         };
 
-        const response = await adminMessaging.send(message as any);
+        const response = await adminMessaging.send(message as Parameters<typeof adminMessaging.send>[0]);
 
         return NextResponse.json({ success: true, response });
-    } catch (error: any) {
+    } catch (error: unknown) {
         console.error('Error sending notification:', error);
-        return NextResponse.json({ error: error.message || 'Internal Server Error' }, { status: 500 });
+        return NextResponse.json({ error: error instanceof Error ? error.message : 'Internal Server Error' }, { status: 500 });
     }
 }

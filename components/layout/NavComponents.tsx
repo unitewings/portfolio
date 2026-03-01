@@ -6,34 +6,24 @@ import { cn } from "@/lib/utils";
 import { Home, FileText, Settings, Linkedin, Youtube, Moon, Sun, Mail, Github, Twitter, Instagram, Facebook, Globe } from "lucide-react";
 import { useTheme } from "next-themes";
 import { Logo } from "@/components/ui/Logo";
-import { useState, useEffect } from "react";
 
-export function ProfileCard({ name, label, socialLinks = [], image, size = 64 }: { name: string; label: string; socialLinks?: any[], image?: string, size?: number }) {
-    const iconMap: Record<string, any> = {
+interface SocialLink {
+    network?: string;
+    url: string;
+}
+
+export function ProfileCard({ name, label }: { name: string; label: string; }) {
+    const iconMap: Record<string, React.ElementType> = {
         linkedin: Linkedin,
         youtube: Youtube,
-        github: Github,
-        twitter: Twitter,
-        instagram: Instagram,
-        facebook: Facebook,
-        email: Mail,
         website: Globe
     };
 
-    const [mounted, setMounted] = useState(false);
-    useEffect(() => {
-        setMounted(true);
-    }, []);
-
-    if (!mounted) {
-        return (
-            <div className="flex flex-col gap-4 p-4 opacity-0">
-                {/* Placeholder to match dimensions roughly */}
-                <div className="h-16 w-full" />
-                <div className="h-10 w-3/4" />
-            </div>
-        );
-    }
+    const socialLinks = [
+        { network: "linkedin", url: "https://linkedin.com/in/swarn-shauryam" },
+        { network: "youtube", url: "https://www.youtube.com/@ajaiswarn" },
+        { network: "website", url: "https://swarn.unitewings.com" }
+    ];
 
     return (
         <div className="flex flex-col gap-4 p-4">
@@ -77,28 +67,12 @@ interface NavMenuProps {
 export function NavMenu({ pages = [] }: NavMenuProps) {
     const pathname = usePathname();
 
-    const iconMap: Record<string, any> = {
-        home: Home,
-        resume: FileText,
-        contact: Mail,
-        default: FileText
-    };
-
-    const sidebarLinks = pages
-        .filter(p => p.inSidebar)
-        .sort((a, b) => (a.order || 0) - (b.order || 0))
-        .map(p => {
-            const Icon = iconMap[p.id] || iconMap.default;
-            return {
-                href: p.type === 'link' ? (p.externalUrl || '#') : (p.path || `/${p.slug}`),
-                label: p.title,
-                icon: Icon,
-                type: p.type || 'page'
-            };
-        });
-
     const allLinks = [
-        ...sidebarLinks
+        { href: '/', label: 'Home', icon: Home, type: 'page' },
+        { href: '/resume', label: 'Resume', icon: FileText, type: 'page' },
+        { href: '/resources', label: 'Resources', icon: FileText, type: 'page' },
+        { href: '/submit', label: 'Submit Content', icon: FileText, type: 'page' },
+        { href: '/contact', label: 'Contact', icon: Mail, type: 'page' },
     ];
 
     return (

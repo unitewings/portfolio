@@ -2,7 +2,6 @@ import { useEffect, useState, useRef } from 'react';
 import { getToken, onMessage, Unsubscribe, getMessaging } from 'firebase/messaging';
 import { app, db, auth } from '@/lib/firebase';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
-import { onAuthStateChanged } from 'firebase/auth';
 import { toast } from 'sonner';
 
 const useFCMToken = () => {
@@ -81,9 +80,10 @@ const useFCMToken = () => {
                     } else {
                         console.log('No registration token available.');
                     }
-                } catch (tokenError: any) {
-                    if (tokenError.message && tokenError.message.includes('Registration failed')) {
-                        console.warn('FCM Registration failed (likely transient or already subscribed):', tokenError);
+                } catch (tokenError: unknown) {
+                    const errorMsg = tokenError instanceof Error ? tokenError.message : String(tokenError);
+                    if (errorMsg.includes('Registration failed')) {
+                        console.warn('FCM Registration failed (likely transient or already subscribed):', errorMsg);
                     } else {
                         console.error('Error getting token:', tokenError);
                     }
@@ -108,6 +108,7 @@ const useFCMToken = () => {
             }
             setNotificationPermission(Notification.permission);
         }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     const saveTokenToFirestore = async (token: string) => {

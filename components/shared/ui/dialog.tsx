@@ -39,7 +39,7 @@ export function Dialog({ open, onOpenChange, children }: DialogProps) {
             {/* Dialog Container to pass props down */}
             {React.Children.map(children, child => {
                 if (React.isValidElement(child)) {
-                    // @ts-ignore
+                    // @ts-expect-error
                     return React.cloneElement(child, { _setOpen: onOpenChange });
                 }
                 return child;
@@ -54,7 +54,7 @@ interface DialogContentProps {
     _setOpen?: (open: boolean) => void;
 }
 
-export function DialogContent({ children, className, _setOpen }: DialogContentProps) {
+export function DialogContent({ children, className }: DialogContentProps) {
     return (
         <div className={cn(
             "relative z-50 grid w-full max-w-lg scale-100 gap-4 border bg-background p-6 shadow-lg duration-200 animate-in fade-in zoom-in-95 sm:rounded-lg",

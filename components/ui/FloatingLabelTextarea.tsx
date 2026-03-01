@@ -1,4 +1,4 @@
-import React, { TextareaHTMLAttributes } from "react";
+import React, { TextareaHTMLAttributes, useId } from "react";
 import { cn } from "@/lib/utils";
 
 interface FloatingLabelTextareaProps extends TextareaHTMLAttributes<HTMLTextAreaElement> {
@@ -7,7 +7,8 @@ interface FloatingLabelTextareaProps extends TextareaHTMLAttributes<HTMLTextArea
 
 export const FloatingLabelTextarea = React.forwardRef<HTMLTextAreaElement, FloatingLabelTextareaProps>(
     ({ className, label, id, ...props }, ref) => {
-        const inputId = id || props.name || "textarea-" + Math.random().toString(36).substr(2, 9);
+        const generatedId = useId();
+        const inputId = id || props.name || generatedId;
 
         return (
             <div className="relative">

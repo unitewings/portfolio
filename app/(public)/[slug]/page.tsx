@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getPageBySlug, getSiteSettings, getPosts } from "@/lib/data";
+import { getPageBySlug, getSiteSettings, getPosts, getPages } from "@/lib/data";
 import { MDXRenderer } from "@/components/shared/MDXRenderer";
 import { Metadata } from "next";
 import { PagePasswordProtection } from "@/components/blog/PagePasswordProtection";
@@ -7,7 +7,12 @@ import { PostCard } from "@/components/feed/PostCard";
 import { NewsletterForm } from "@/components/layout/NewsletterForm";
 import { BlogPost } from "@/types";
 
-export const dynamic = "force-dynamic";
+export async function generateStaticParams() {
+    const pages = await getPages();
+    return pages.filter(page => page.slug).map((page) => ({
+        slug: page.slug,
+    }));
+}
 
 interface PageProps {
     params: Promise<{
@@ -18,17 +23,16 @@ interface PageProps {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
     const { slug } = await params;
     const page = await getPageBySlug(slug);
-    const settings = await getSiteSettings();
 
     if (!page) {
         return {
-            title: `Page Not Found | ${settings.globalTitle}`,
+            title: `Page Not Found`,
         };
     }
 
     return {
-        title: `${page.seoTitle || page.title} | ${settings.globalTitle}`,
-        description: page.seoDescription || settings.globalDescription,
+        title: page.seoTitle || page.title,
+        description: page.seoDescription || "Personal portfolio and blog.",
     };
 }
 
@@ -47,8 +51,9 @@ export default async function DynamicPage({ params }: PageProps) {
         const cookieStore = await cookies();
         const cookieName = "access_granted_page_" + page.id;
         const hasAccess = cookieStore.get(cookieName);
+        const hasGlobalAccess = cookieStore.get("access_granted_global");
 
-        if (!hasAccess) {
+        if (!hasAccess && !hasGlobalAccess) {
             return <PagePasswordProtection pageId={page.id} hintLink={page.passwordHintLink} />;
         }
     }

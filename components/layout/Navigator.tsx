@@ -1,12 +1,11 @@
 import { ProfileCard, NavMenu, ThemeToggle, NotificationToggle } from "./NavComponents";
-import { getSiteSettings, getPages, getPosts } from "@/lib/data";
+import { getSiteSettings, getPosts } from "@/lib/data";
 import { NewsletterForm } from "@/components/layout/NewsletterForm";
 import Link from "next/link";
 import { BlogPost } from "@/types";
 
 export async function Navigator() {
     const settings = await getSiteSettings();
-    const pages = await getPages();
     const posts = await getPosts();
     const pinnedPosts = posts.filter(p => p.pinned).slice(0, 5);
 
@@ -17,11 +16,10 @@ export async function Navigator() {
                     {/* Profile & Nav */}
                     <div className="flex flex-col gap-6">
                         <ProfileCard
-                            name={settings.profileName || "Jeff Su"}
-                            label={settings.profileLabel || "Productivity Expert"}
-                            socialLinks={settings.socialLinks}
+                            name="Swarn Shauryam"
+                            label="AI, Growth & Journey"
                         />
-                        <NavMenu pages={pages} />
+                        <NavMenu />
                     </div>
                 </div>
 

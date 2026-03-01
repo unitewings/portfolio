@@ -50,7 +50,7 @@ export default function ResumeForm({ initialData }: { initialData: ResumeData })
         setData(prev => ({ ...prev, work: prev.work.filter(w => w.id !== id) }));
     };
 
-    const updateWork = (id: string, field: keyof WorkExperience, value: any) => {
+    const updateWork = (id: string, field: keyof WorkExperience, value: string | string[]) => {
         setData(prev => ({
             ...prev,
             work: prev.work.map(w => w.id === id ? { ...w, [field]: value } : w)

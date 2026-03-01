@@ -7,9 +7,14 @@ export default async function SettingsPage() {
     const initialSettings = await getSiteSettings();
 
     return (
-        <div className="space-y-6">
-            <h1 className="text-3xl font-bold tracking-tight">Site Settings</h1>
+        <>
+            <header className="flex justify-between items-center mb-10">
+                <div>
+                    <h1 className="font-display text-3xl font-bold text-gray-900 dark:text-white">Site Settings</h1>
+                    <p className="text-muted-light dark:text-muted-dark">Configure your portfolio&apos;s global settings and metadata.</p>
+                </div>
+            </header>
             <SettingsForm initialData={initialSettings} />
-        </div>
+        </>
     );
 }

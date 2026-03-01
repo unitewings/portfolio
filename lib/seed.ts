@@ -10,7 +10,7 @@ export async function getLocalResume(): Promise<ResumeData | null> {
         const filePath = path.join(DATA_DIR, 'resume.json');
         const file = await fs.readFile(filePath, 'utf-8');
         return JSON.parse(file);
-    } catch (e) {
+    } catch {
         console.warn("Local resume.json not found for seeding.");
         return null;
     }
@@ -21,7 +21,7 @@ export async function getLocalPosts(): Promise<BlogPost[]> {
         const filePath = path.join(DATA_DIR, 'posts.json');
         const file = await fs.readFile(filePath, 'utf-8');
         return JSON.parse(file);
-    } catch (e) {
+    } catch {
         return [];
     }
 }

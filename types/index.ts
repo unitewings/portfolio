@@ -82,7 +82,7 @@ export interface BlogPost {
     thumbnailUrl?: string;
     pinned?: boolean;
     status: 'draft' | 'published';
-    type: 'article' | 'video' | 'newsletter';
+    type: 'article' | 'whitepaper' | 'case_study' | 'downloadable' | 'quick_download' | 'newsletter' | 'video';
 
     // SEO Fields
     seoTitle?: string;
@@ -108,6 +108,7 @@ export interface SiteSettings {
     newsletterDescription?: string;
     contactIntro?: string;
     contactEmail?: string;
+    submissionCategories?: string[]; // Dynamic categories for community submissions
 }
 
 export interface Subscriber {
@@ -175,4 +176,22 @@ export interface CustomPage {
 export interface MDXSettings {
     iframeAllowlist: string; // One domain per line, simple text
     updatedAt?: string;
+}
+
+export interface CommunitySubmission {
+    id: string;
+    authorName: string;
+    email: string;
+    category: string; // Dynamic category
+    title: string;
+    content: string; // Markdown/HTML
+    attachments?: string[]; // Array of URLs
+    status: 'pending' | 'approved' | 'rejected';
+    submittedAt: string; // ISO 8601
+    editorNotes?: string;
+}
+
+export interface SiteReactions {
+    claps: number;
+    highFives: number;
 }

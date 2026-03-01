@@ -32,7 +32,7 @@ export function ContactForm() {
                 </div>
                 <h3 className="mb-2 text-xl font-semibold">Message Sent!</h3>
                 <p className="text-muted-foreground">
-                    Thanks for reaching out. I'll get back to you properly.
+                    Thanks for reaching out. I&apos;ll get back to you properly.
                 </p>
                 <Button variant="outline" className="mt-6" onClick={() => setSubmitted(false)}>
                     Send another message
@@ -42,78 +42,67 @@ export function ContactForm() {
     }
 
     return (
-        <form action={handleSubmit} className="space-y-6 animate-in fade-in slide-in-from-bottom-4">
-            <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                    <FloatingLabelInput
+        <form action={handleSubmit} className="flex flex-col space-y-5 h-full">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                <div className="flex flex-col space-y-2">
+                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-300" htmlFor="firstName">Name</label>
+                    <input
+                        className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                         id="firstName"
                         name="firstName"
+                        placeholder="Your Name"
+                        type="text"
                         required
-                        label="Name *"
                     />
                 </div>
-                <div className="space-y-2">
-                    <FloatingLabelInput
-                        id="lastName"
-                        name="lastName"
-                        required
-                        label="Last name *"
-                    />
-                </div>
-            </div>
-
-            <div className="grid gap-4 sm:grid-cols-2">
-                <div className="space-y-2">
-                    <FloatingLabelInput
+                <div className="flex flex-col space-y-2">
+                    <label className="text-sm font-semibold text-gray-700 dark:text-gray-300" htmlFor="email">Email</label>
+                    <input
+                        className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                         id="email"
                         name="email"
+                        placeholder="hello@example.com"
                         type="email"
                         required
-                        label="Email *"
-                    />
-                </div>
-                <div className="space-y-2">
-                    <FloatingLabelInput
-                        id="phone"
-                        name="phone"
-                        type="tel"
-                        label="Contact Number (Optional)"
                     />
                 </div>
             </div>
 
-            <div className="space-y-2">
-                <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70" htmlFor="category">
-                    Select the appropriate (Optional)
-                </label>
-                <select
+            {/* hidden fields needed for action compatibility */}
+            <input type="hidden" name="lastName" value="(Provided via Name field)" />
+            <input type="hidden" name="phone" value="" />
+
+            <div className="flex flex-col space-y-2">
+                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300" htmlFor="category">Subject</label>
+                <input
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all"
                     id="category"
                     name="category"
-                    className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                >
-                    <option value="">Select an option...</option>
-                    <option value="Student">Student</option>
-                    <option value="Corporate">Corporate</option>
-                    <option value="Startup">Startup</option>
-                    <option value="Mentor">Mentor</option>
-                    <option value="College/Academia">College/Academia</option>
-                    <option value="Other">Other</option>
-                </select>
-            </div>
-
-            <div className="space-y-2">
-                <FloatingLabelTextarea
-                    id="message"
-                    name="message"
+                    placeholder="Project Discussion"
+                    type="text"
                     required
-                    label="Message *"
-                    className="min-h-[150px] resize-y"
                 />
             </div>
 
-            <Button type="submit" disabled={isPending} size="lg" className="w-full sm:w-auto min-w-[140px]">
-                {isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : "Send Message"}
-            </Button>
+            <div className="flex flex-col space-y-2 flex-grow">
+                <label className="text-sm font-semibold text-gray-700 dark:text-gray-300" htmlFor="message">Message</label>
+                <textarea
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-600 bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-primary focus:border-transparent transition-all min-h-[160px] resize-none"
+                    id="message"
+                    name="message"
+                    placeholder="Tell me about your project..."
+                    required
+                ></textarea>
+            </div>
+
+            <button
+                disabled={isPending}
+                className="bg-primary hover:bg-orange-700 text-white font-bold py-4 px-6 rounded-xl transition-all shadow-lg shadow-orange-500/30 flex items-center justify-center mt-4 group disabled:opacity-50"
+                type="submit"
+            >
+                {isPending ? <Loader2 className="h-5 w-5 animate-spin mr-2" /> : "Send Message"}
+                {!isPending && <span className="material-icons-round ml-2 group-hover:translate-x-1 transition-transform">send</span>}
+            </button>
         </form>
     );
 }

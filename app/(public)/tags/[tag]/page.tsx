@@ -6,7 +6,7 @@ export async function generateMetadata({ params }: { params: Promise<{ tag: stri
     const { tag } = await params;
     const decodedTag = decodeURIComponent(tag);
     return {
-        title: `Topic: ${decodedTag} | Jeff Su`,
+        title: `Topic: ${decodedTag}`,
         description: `Browse articles and videos about ${decodedTag}.`,
     };
 }
@@ -19,6 +19,7 @@ export default async function TagPage(props: { params: Promise<{ tag: string }> 
     const filteredPosts = posts.filter(p => {
         if (p.status && p.status !== 'published') return false;
         if (p.isListed === false) return false;
+        if (p.type === 'whitepaper' || p.type === 'case_study') return false;
         return p.tags?.some(t => t.toLowerCase() === decodedTag.toLowerCase());
     });
 

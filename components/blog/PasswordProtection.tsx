@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { verifyPostPassword } from "@/lib/actions";
+import { verifyPostEmailAccess } from "@/lib/actions";
 import { Button } from "@/components/shared/ui/button";
-import { Lock } from "lucide-react";
+import { Mail, User } from "lucide-react";
 
 interface PasswordProtectionProps {
     postId: string;
@@ -12,7 +12,8 @@ interface PasswordProtectionProps {
 }
 
 export function PasswordProtection({ postId, hintLink }: PasswordProtectionProps) {
-    const [password, setPassword] = useState("");
+    const [name, setName] = useState("");
+    const [email, setEmail] = useState("");
     const [error, setError] = useState("");
     const [loading, setLoading] = useState(false);
     const router = useRouter();
@@ -23,11 +24,11 @@ export function PasswordProtection({ postId, hintLink }: PasswordProtectionProps
         setError("");
 
         try {
-            const result = await verifyPostPassword(postId, password);
+            const result = await verifyPostEmailAccess(postId, name, email);
             if (result.success) {
                 router.refresh();
             } else {
-                setError(result.message || "Incorrect password");
+                setError(result.message || "Failed to verify access");
             }
         } catch (err) {
             setError("Something went wrong. Please try again.");
@@ -40,25 +41,44 @@ export function PasswordProtection({ postId, hintLink }: PasswordProtectionProps
         <div className="flex flex-col items-center justify-center min-h-[50vh] px-4">
             <div className="w-full max-w-md space-y-8 bg-card p-8 rounded-xl border shadow-sm text-center">
                 <div className="mx-auto bg-muted p-4 rounded-full w-fit">
-                    <Lock className="h-8 w-8 text-muted-foreground" />
+                    <Mail className="h-8 w-8 text-muted-foreground" />
                 </div>
 
                 <div className="space-y-2">
-                    <h1 className="text-2xl font-bold tracking-tight">Protected Content</h1>
-                    <p className="text-muted-foreground">
-                        This post is password protected. Please enter the password to view it.
+                    <h1 className="text-2xl font-bold tracking-tight">Email Required</h1>
+                    <p className="text-muted-foreground text-sm">
+                        This content requires your email to download or view. Please provide your details below.
                     </p>
                 </div>
 
                 <form onSubmit={handleSubmit} className="space-y-4">
-                    <div className="space-y-2">
-                        <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder="Enter password"
-                            className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
-                        />
+                    <div className="space-y-3">
+                        <div className="relative">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                                <User className="h-4 w-4" />
+                            </span>
+                            <input
+                                type="text"
+                                value={name}
+                                onChange={(e) => setName(e.target.value)}
+                                placeholder="Full Name"
+                                required
+                                className="flex h-10 w-full rounded-md border border-input bg-background pl-10 pr-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                            />
+                        </div>
+                        <div className="relative">
+                            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+                                <Mail className="h-4 w-4" />
+                            </span>
+                            <input
+                                type="email"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
+                                placeholder="Email Address"
+                                required
+                                className="flex h-10 w-full rounded-md border border-input bg-background pl-10 pr-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50"
+                            />
+                        </div>
                         {error && <p className="text-sm text-destructive">{error}</p>}
                     </div>
 

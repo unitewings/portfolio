@@ -1,6 +1,6 @@
 import { initializeApp, getApps, getApp } from "firebase/app";
 import { getAnalytics, isSupported } from "firebase/analytics";
-import { getFirestore } from "firebase/firestore";
+import type { Analytics } from "firebase/analytics";
 
 const firebaseConfig = {
     apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
@@ -16,7 +16,7 @@ const firebaseConfig = {
 const app = getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 
 // Initialize Analytics (Client-side only)
-let analytics: any;
+let analytics: Analytics | undefined;
 
 if (typeof window !== "undefined") {
     isSupported().then((supported) => {
@@ -31,6 +31,7 @@ if (typeof window !== "undefined") {
 // We also use 'initializeFirestore' to ensure specific settings are applied
 import { getAuth } from "firebase/auth";
 import { initializeFirestore } from "firebase/firestore";
+import { getStorage } from "firebase/storage";
 
 const db = initializeFirestore(app, {
     experimentalForceLongPolling: true,
@@ -38,11 +39,14 @@ const db = initializeFirestore(app, {
 
 const auth = getAuth(app);
 
-let messaging: any;
+import type { Messaging } from "firebase/messaging";
+let messaging: Messaging | undefined;
 if (typeof window !== "undefined") {
     import("firebase/messaging").then(({ getMessaging }) => {
         messaging = getMessaging(app);
     });
 }
 
-export { app, analytics, db, auth, messaging };
+const storage = getStorage(app);
+
+export { app, analytics, db, auth, messaging, storage };
