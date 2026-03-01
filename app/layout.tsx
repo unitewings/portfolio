@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   },
   description: "Personal portfolio and blog.",
   icons: {
-    icon: '/images/favicon.ico',
+    icon: '/Images/favicon.ico',
   },
 };
 
