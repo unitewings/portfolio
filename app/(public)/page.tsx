@@ -2,6 +2,7 @@ import { getSiteSettings } from "@/lib/data";
 import { MDXRenderer } from "@/components/shared/MDXRenderer";
 import { NewsletterForm } from "@/components/layout/NewsletterForm";
 import Link from "next/link";
+import Image from "next/image";
 import { ReactionWidget } from "@/components/public/ReactionWidget";
 
 export const revalidate = 3600; // Revalidate every hour
@@ -29,7 +30,7 @@ export default async function Home() {
                     </div>
                     <div className="relative mt-12 md:mt-0 w-full md:w-1/3 flex justify-center md:justify-end">
                         <div className="relative w-64 h-64 md:w-96 md:h-96">
-                            <img alt="Abstract Portrait of Swarn Shauryam" className="w-full h-full object-cover rounded-3xl shadow-2xl relative z-10" src="https://res.cloudinary.com/dq8rnfy2w/image/upload/v1772210106/zbsd2v0vrp4n34aeojwg.jpg" />
+                            <Image alt="Abstract Portrait of Swarn Shauryam" className="w-full h-full object-cover rounded-3xl shadow-2xl relative z-10" src="https://res.cloudinary.com/dq8rnfy2w/image/upload/v1772210106/zbsd2v0vrp4n34aeojwg.jpg" fill priority sizes="(max-width: 768px) 256px, 384px" />
                             <div className="absolute -top-10 -right-10 bg-primary/20 w-48 h-48 rounded-full blur-3xl"></div>
                             <div className="absolute -bottom-10 -left-10 bg-blue-500/20 w-48 h-48 rounded-full blur-3xl"></div>
                         </div>

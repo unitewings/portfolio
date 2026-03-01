@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { getToken, onMessage, Unsubscribe, getMessaging } from 'firebase/messaging';
-import { app, db, auth } from '@/lib/firebase';
+import { app, db, getFirebaseAuth } from '@/lib/firebase';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 import { toast } from 'sonner';
 
@@ -113,7 +113,7 @@ const useFCMToken = () => {
 
     const saveTokenToFirestore = async (token: string) => {
         try {
-            const user = auth.currentUser;
+            const user = getFirebaseAuth().currentUser;
             const userId = user ? user.uid : 'anonymous';
 
             const tokenRef = doc(db, 'fcm_tokens', token);
