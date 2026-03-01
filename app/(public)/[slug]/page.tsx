@@ -9,7 +9,7 @@ import { BlogPost } from "@/types";
 
 export async function generateStaticParams() {
     const pages = await getPages();
-    return pages.filter(page => page.slug).map((page) => ({
+    return pages.filter(page => page.slug && !page.isSystem).map((page) => ({
         slug: page.slug,
     }));
 }
@@ -24,7 +24,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
     const { slug } = await params;
     const page = await getPageBySlug(slug);
 
-    if (!page) {
+    if (!page || page.isSystem) {
         return {
             title: `Page Not Found`,
         };
@@ -41,7 +41,7 @@ export default async function DynamicPage({ params }: PageProps) {
     const page = await getPageBySlug(slug);
     const settings = await getSiteSettings();
 
-    if (!page) {
+    if (!page || page.isSystem) {
         notFound();
     }
 
